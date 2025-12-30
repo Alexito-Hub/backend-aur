@@ -1,0 +1,31 @@
+schema: "Schema/schema.graphql"
+config:
+  useIndexSignature: true
+  skipTypename: true
+  
+generates:
+  # Archivo principal con el schema SDL (JavaScript - como Proto)
+  Schema/index.js:
+    plugins:
+      - add:
+          placement: prepend
+          content: |
+            // Generated from Schema/schema.graphql - do not edit manually
+            
+            const typeDefs = `
+      - schema-ast:
+          includeDirectives: true
+      - add:
+          placement: append
+          content: |
+            `;
+            
+            module.exports = typeDefs;
+            module.exports.typeDefs = typeDefs;
+  
+  # Tipos TypeScript (como Proto)
+  Schema/index.d.ts:
+    plugins:
+      - typescript
+    config:
+      useIndexSignature: true
