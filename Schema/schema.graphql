@@ -1,0 +1,31 @@
+type User {
+  id: ID
+  username: String
+  email: String
+}
+
+type Settings {
+  maintenance: Boolean
+  logger: String
+}
+
+type WebServer {
+  url: String
+  port: String
+  protocol: String
+  name: String
+  version: String
+  description: String
+  author: String
+  license: String
+}
+
+type Collection {
+  users: [User]
+  webserver: WebServer
+  settings: Settings
+}
+
+type Query {
+  collection: Collection
+}
