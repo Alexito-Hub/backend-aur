@@ -31,8 +31,9 @@ const origins = IS_PRODUCTION
     ? [
         process.env.FRONTEND_URL,
         process.env.CLOUD_RUN_URL,
-        /^https:\/\/.*\.run\.app$/,
-        /^http:\/\/localhost:\d+$/
+        /^https:\/\/.*\.mediakeep\.com$/,   // Replace with actual production domain later
+        /^https:\/\/.*\.run\.app$/,         // Cloud Run wildcard
+        // Localhost explicitly excluded in pure production for security
     ].filter((o): o is string | RegExp => Boolean(o))
     : ["http://localhost:5173", /^http:\/\/localhost:\d+$/];
 
@@ -66,6 +67,7 @@ const run = async () => {
                     styleSrc: ["'self'", "'unsafe-inline'"],
                     scriptSrc: ["'self'"],
                     imgSrc: ["'self'", 'data:', 'https:'],
+                    connectSrc: ["'self'", 'https://*.firebaseio.com', 'https://*.googleapis.com']
                 }
             },
             crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -82,20 +84,19 @@ const run = async () => {
         }))
         .use(cors({
             origin: origins,
-            methods: ['GET', 'POST', 'PUT', 'DELETE'],
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             credentials: true,
-            allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+            allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-app-token', 'x-device-fingerprint'],
             exposedHeaders: ['X-Total-Count'],
             maxAge: 600
         }))
+        // Infrastructure rate limit strictly for abusive IPs (independent of app usage limits)
         .use(limit({
-            windowMs: 15 * 60 * 1000,
-            max: process.env.NODE_ENV === 'production' ? 50 : 100,
-            message: { status: false, msg: 'Demasiadas peticiones. Intenta más tarde.' },
+            windowMs: 5 * 60 * 1000, // 5 minutes
+            max: IS_PRODUCTION ? 100 : 500, // Limit each IP to 100 requests per windowMs
+            message: { status: false, msg: 'Demasiadas peticiones a la API. Intenta más tarde.' },
             standardHeaders: true,
             legacyHeaders: false,
-            skipSuccessfulRequests: false,
-            skipFailedRequests: false
         }))
         .use(cookieParser())
         .use(express.json({

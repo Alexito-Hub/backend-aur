@@ -1,33 +1,35 @@
 import type { Request, Response } from 'express';
-import Twitter from '../../Utils/scrapper/twitter';
+import FacebookScraper from '../../../Utils/scrapper/facebook';
+import Middlewares from '../middlewares';
 
 export default {
-    name: 'Download Twitter Media',
-    path: '/download/twitter',
+    name: 'Download Facebook Media',
+    path: '/download/facebook',
     method: 'post',
     category: 'download',
     example: {
-        url: '/download/twitter',
-        body: { url: 'https://x.com/user/status/123456789' }
+        url: '/download/facebook',
+        body: { url: 'https://www.facebook.com/user/posts/123' }
     },
     parameter: ['url'],
     premium: false,
     error: false,
     logger: true,
     requires: (req: Request, res: Response, next: Function) => {
-        const { url } = req.body;
+        const url = req.body?.url || req.query?.url;
         if (!url || typeof url !== 'string') {
             return res.status(400).json({ status: false, msg: 'La URL es requerida' });
         }
         next();
     },
+    validator: Middlewares.guest('facebook'),
     execution: async (req: Request, res: Response) => {
         const { url } = req.body;
         try {
-            const scraper = new Twitter();
+            const scraper = new FacebookScraper();
             const result = await scraper.download(url);
 
-            if (!result || !result.media || result.media.length === 0) {
+            if (!result) {
                 return res.status(404).json({
                     status: false,
                     msg: 'No se encontró contenido para descargar.'
@@ -39,12 +41,9 @@ export default {
                 data: result
             });
 
-        } catch (e: any) {
-            console.error('Error en descarga de Twitter:', e);
-            return res.status(500).json({
-                status: false,
-                msg: e.message || 'Error interno del servidor.'
-            });
+        } catch (e) {
+            console.error('Error en descarga de Facebook:', e);
+            return res.status(500).json({ status: false, msg: 'Error interno o enlace inválido.' });
         }
     }
 };

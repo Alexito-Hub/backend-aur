@@ -1,30 +1,32 @@
 import type { Request, Response } from 'express';
-import FacebookScraper from '../../Utils/scrapper/facebook';
+import Bilibili from '../../../Utils/scrapper/bilibili';
+import Middlewares from '../middlewares';
 
 export default {
-    name: 'Download Facebook Media',
-    path: '/download/facebook',
+    name: 'Download Bilibili Media',
+    path: '/download/bilibili',
     method: 'post',
     category: 'download',
     example: {
-        url: '/download/facebook',
-        body: { url: 'https://www.facebook.com/user/posts/123' }
+        url: '/download/bilibili',
+        body: { url: 'https://www.bilibili.tv/video/4793817472438784' }
     },
     parameter: ['url'],
     premium: false,
     error: false,
     logger: true,
     requires: (req: Request, res: Response, next: Function) => {
-        const { url } = req.body;
+        const url = req.body?.url || req.query?.url;
         if (!url || typeof url !== 'string') {
             return res.status(400).json({ status: false, msg: 'La URL es requerida' });
         }
         next();
     },
+    validator: Middlewares.guest('bilibili'),
     execution: async (req: Request, res: Response) => {
         const { url } = req.body;
         try {
-            const scraper = new FacebookScraper();
+            const scraper = new Bilibili();
             const result = await scraper.download(url);
 
             if (!result) {
@@ -40,7 +42,7 @@ export default {
             });
 
         } catch (e: any) {
-            console.error('Error en descarga de Facebook:', e);
+            console.error('Error en descarga de Bilibili:', e);
             return res.status(500).json({
                 status: false,
                 msg: e.message || 'Error interno del servidor.'

@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
-import YouTube from '../../Utils/scrapper/youtube';
+import YouTube from '../../../Utils/scrapper/youtube';
+import Middlewares from '../middlewares';
 
 export default {
     name: 'Download YouTube Media',
@@ -15,12 +16,13 @@ export default {
     error: false,
     logger: true,
     requires: (req: Request, res: Response, next: Function) => {
-        const { url } = req.body;
+        const url = req.body?.url || req.query?.url;
         if (!url || typeof url !== 'string') {
             return res.status(400).json({ status: false, msg: 'La URL es requerida' });
         }
         next();
     },
+    validator: Middlewares.guest('youtube'),
     execution: async (req: Request, res: Response) => {
         const { url } = req.body;
         try {
