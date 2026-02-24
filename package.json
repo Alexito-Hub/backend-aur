@@ -15,7 +15,8 @@
     "generate:secrets": "node generate-secrets.js",
     "security:audit": "npm audit",
     "security:fix": "npm audit fix",
-    "setup:env": "copy .env.example .env"
+    "setup:env": "copy .env.example .env",
+    "deploy:rules": "firebase deploy --only firestore:rules --project=$PROJECT_ID"
   },
   "keywords": [],
   "author": "",

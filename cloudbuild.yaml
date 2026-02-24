@@ -13,6 +13,17 @@ steps:
       - 'push'
       - 'gcr.io/$PROJECT_ID/auralix-api:$COMMIT_SHA'
 
+  # deploy Firestore security rules so that the API and clients use the
+  # most recent policy when Cloud Run rolls out the new container
+  - name: 'node:18'
+    entrypoint: bash
+    args:
+      - '-c'
+      - |
+        npm install -g firebase-tools && \
+        echo "Deploying Firestore rules..." && \
+        firebase deploy --only firestore:rules --project=$PROJECT_ID
+
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
     entrypoint: bash
     args:

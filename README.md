@@ -1,5 +1,12 @@
 # Backend API - Greenly Social Media
 
+> **Nota de despliegue**: durante la construcción en Cloud Build (para Cloud
+> Run) se despliegan automáticamente las reglas de Firestore contenidas en
+> `firestore.rules`. El paso usa el CLI de Firebase y requiere que la cuenta
+> de servicio de Cloud Build tenga permisos de edición de reglas o que exista
+> una variable `GOOGLE_APPLICATION_CREDENTIALS` con la clave adecuada.
+
+
 Backend personalizado para reemplazar Firebase en la aplicación Greenly.
 
 ## 🚀 Inicio Rápido
