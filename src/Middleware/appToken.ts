@@ -7,7 +7,15 @@ export default new class AppToken {
      */
     public token = (req: Request, res: Response, next: NextFunction) => {
         const appToken = req.headers['x-app-token'];
-        const expectedToken = process.env.APP_SECRET_TOKEN || 'mediakeep_default_secret_dev';
+        const expectedToken = process.env.APP_SECRET_TOKEN;
+
+        if (!expectedToken) {
+            console.error('CRITICAL: APP_SECRET_TOKEN is not defined in the environment.');
+            return res.status(500).json({
+                status: false,
+                msg: 'Error interno: El servidor no está configurado correctamente.'
+            });
+        }
 
         if (!appToken || appToken !== expectedToken) {
             return res.status(403).json({

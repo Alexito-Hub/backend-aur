@@ -18,7 +18,15 @@ export default new class UsageLimit {
                     const doc = await transaction.get(userRef);
 
                     if (!doc.exists) {
-                        transaction.set(userRef, { requestsCount: 1, plan: 'free', totalLimit: 10 });
+                        transaction.set(userRef, {
+                            email: user.email,
+                            name: user.name || '',
+                            picture: user.picture || '',
+                            requestsCount: 1,
+                            plan: 'free',
+                            totalLimit: 10,
+                            createdAt: admin.firestore.FieldValue.serverTimestamp()
+                        });
                         return;
                     }
 

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import AppToken from '../../Middleware/appToken';
 import FirebaseAuth from '../../Middleware/firebaseAuth';
 import UsageLimit from '../../Middleware/usageLimit';
+import AppCheck from '../../Middleware/appCheck';
 import Cache from '../../Utils/System/cache';
 
 export default new class Middlewares {
@@ -28,10 +29,9 @@ export default new class Middlewares {
 
     public guest = (name: string) => {
         return async (req: Request, res: Response, next: NextFunction) => {
-            const passed = await this.run([AppToken.token, UsageLimit.user, UsageLimit.limit], req, res, next);
+            const passed = await this.run([AppCheck.token, AppToken.token, UsageLimit.user, UsageLimit.limit], req, res, next);
             if (!passed) return;
 
-            // Apply caching logic natively through the validator
             const url = req.body?.url || req.query?.url;
             if (url && typeof url === 'string') {
                 const key = `${name}_${url}`;
@@ -54,7 +54,7 @@ export default new class Middlewares {
     };
 
     public member = async (req: Request, res: Response, next: NextFunction) => {
-        const passed = await this.run([AppToken.token, FirebaseAuth.auth, UsageLimit.limit], req, res, next);
+        const passed = await this.run([AppCheck.token, AppToken.token, FirebaseAuth.auth, UsageLimit.limit], req, res, next);
         if (passed) next();
     };
 
