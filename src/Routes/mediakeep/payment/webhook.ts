@@ -9,10 +9,10 @@ const db = admin.firestore();
  * using the official MercadoPago SDK to verify real transactions and HMAC X-Signature.
  */
 export default {
-    path: '/payment',
+    path: '/payment/webhook',
     method: 'post',
 
-    execute: async (req: Request, res: Response) => {
+    execution: async (req: Request, res: Response) => {
         try {
             // Immediate response required by MP
             res.status(200).send('OK');

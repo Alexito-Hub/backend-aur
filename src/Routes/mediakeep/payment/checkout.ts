@@ -11,7 +11,7 @@ export default {
     method: 'post',
 
     validator: Middlewares.pay,
-    execute: async (req: Request, res: Response) => {
+    execution: async (req: Request, res: Response) => {
         try {
             // Expected payload from the Flutter app
             const { packageId, userId } = req.body;
