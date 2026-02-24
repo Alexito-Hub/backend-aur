@@ -27,15 +27,13 @@ const PORT = process.env.PORT || process.env.WEBSERVER_PORT || 3000;
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const IS_CLOUD_RUN = process.env.K_SERVICE !== undefined;
 
-const origins = IS_PRODUCTION
-    ? [
-        process.env.FRONTEND_URL,
-        process.env.CLOUD_RUN_URL,
-        /^https:\/\/.*\.mediakeep\.com$/,   // Replace with actual production domain later
-        /^https:\/\/.*\.run\.app$/,         // Cloud Run wildcard
-        // Localhost explicitly excluded in pure production for security
-    ].filter((o): o is string | RegExp => Boolean(o))
-    : ["http://localhost:5173", /^http:\/\/localhost:\d+$/];
+const origins = [
+    process.env.FRONTEND_URL,
+    process.env.CLOUD_RUN_URL,
+    /^https:\/\/.*\.mediakeep\.com$/,
+    /^http:\/\/localhost:\d+$/,
+    /^https:\/\/.*\.run\.app$/,
+].filter((o): o is string | RegExp => Boolean(o));
 
 const io = new SocketIOServer(server, {
     cors: {
