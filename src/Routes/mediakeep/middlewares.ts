@@ -71,4 +71,14 @@ export default new class Middlewares {
         const passed = await this.run([AppToken.token, FirebaseAuth.auth, AdminCheck.check], req, res, next);
         if (passed) next();
     };
+
+    /**
+     * Reward stack: AppToken → FirebaseAuth (Optional Decode)
+     * Does NOT enforce UsageLimits because users come here to get MORE limits.
+     * Both Guests and Authenticated users are welcome.
+     */
+    public reward = async (req: Request, res: Response, next: NextFunction) => {
+        const passed = await this.run([AppToken.token, FirebaseAuth.optionalAuth], req, res, next);
+        if (passed) next();
+    };
 }

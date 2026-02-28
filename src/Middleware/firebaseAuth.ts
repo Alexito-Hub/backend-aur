@@ -30,4 +30,27 @@ export default new class FirebaseAuth {
             });
         }
     };
+
+    /**
+     * Tentați validar el Firebase ID token, pero si NO existe o es inválido,
+     * permite continuar (ideal para rutas mixtas Guest + Member).
+     */
+    public optionalAuth = async (req: Request, res: Response, next: NextFunction) => {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return next(); // Proceed without user injected
+        }
+
+        const token = authHeader.split('Bearer ')[1];
+
+        try {
+            const decodedToken = await admin.auth().verifyIdToken(token);
+            (req as any).user = decodedToken;
+            return next();
+        } catch (error) {
+            // Ignore token issues since this is optional Auth (guest fallback)
+            return next();
+        }
+    };
 }
