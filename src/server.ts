@@ -18,6 +18,7 @@ import Create from './Utils/handler';
 import Storage from './Utils/storage';
 import MongoDB from './Config/database.mongodb';
 import SQLite from './Config/database.sqlite';
+import SuspiciousActivityLogger from './Middleware/suspiciousActivity';
 
 dotenv.config();
 
@@ -108,6 +109,8 @@ const run = async () => {
             parameterLimit: 1000
         }))
         .use(morgan(IS_PRODUCTION ? 'combined' : ':clientIp :method :url :status :res[content-length] - :response-time ms'))
+        // Global suspicious activity monitor (403/401 burst detection, IP flagging)
+        .use(SuspiciousActivityLogger.monitor)
         .use(session({
             secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex'),
             name: '__session',

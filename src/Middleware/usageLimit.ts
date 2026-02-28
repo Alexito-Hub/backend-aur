@@ -33,8 +33,20 @@ export default new class UsageLimit {
                     const data = doc.data()!;
                     const currentCount = data.requestsCount || 0;
                     const limit = data.totalLimit || 10;
+                    const plan = data.plan || 'free';
 
-                    if (data.plan === 'free' && currentCount >= limit) {
+                    // Check if premium subscription has expired
+                    let effectivePlan = plan;
+                    if (plan === 'premium' && data.subscriptionExpiresAt) {
+                        const expiresAt = new Date(data.subscriptionExpiresAt);
+                        if (expiresAt < new Date()) {
+                            effectivePlan = 'free';
+                            // Downgrade expired subscription atomically
+                            transaction.update(userRef, { plan: 'free' });
+                        }
+                    }
+
+                    if (effectivePlan === 'free' && currentCount >= limit) {
                         throw new Error('AUTH_LIMIT_REACHED');
                     }
 

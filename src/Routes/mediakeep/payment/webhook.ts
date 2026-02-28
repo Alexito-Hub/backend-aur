@@ -106,10 +106,20 @@ export default {
                         const currentData = sfDoc.data();
                         const currentLimit = currentData?.totalLimit || 10;
 
+                        // For subscription plans, set expiry 30 days from now
+                        // The totalLimit is set to a large number (99999) for unlimited
+                        const isSub = planType === 'premium' && packageRequests >= 99999;
+                        const subscriptionExpiresAt = isSub
+                            ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                            : (currentData?.subscriptionExpiresAt || null);
+
                         transaction.update(userRef, {
                             plan: planType,
-                            totalLimit: currentLimit + packageRequests,
+                            // For subscriptions: reset to 99999 (not cumulative).
+                            // For packs: accumulate on existing limit.
+                            totalLimit: isSub ? 99999 : currentLimit + packageRequests,
                             lastPaymentId: paymentId,
+                            subscriptionExpiresAt,
                             updatedAt: new Date().toISOString()
                         });
 

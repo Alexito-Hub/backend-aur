@@ -13,8 +13,10 @@ export default {
     validator: Middlewares.pay,
     execution: async (req: Request, res: Response) => {
         try {
-            // Expected payload from the Flutter app
-            const { packageId, userId } = req.body;
+            // userId is extracted from the Firebase ID token (injected by FirebaseAuth middleware)
+            // NEVER trust userId from req.body — prevents identity spoofing
+            const userId = (req as any).user?.uid;
+            const { packageId } = req.body;
 
             if (!userId || !packageId) {
                 return res.status(400).json({ status: false, msg: 'Faltan parámetros de pago.' });

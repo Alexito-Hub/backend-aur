@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import AppToken from '../../Middleware/appToken';
 import FirebaseAuth from '../../Middleware/firebaseAuth';
 import UsageLimit from '../../Middleware/usageLimit';
+import AdminCheck from '../../Middleware/adminCheck';
 import Cache from '../../Utils/System/cache';
 
 export default new class Middlewares {
@@ -59,6 +60,15 @@ export default new class Middlewares {
 
     public pay = async (req: Request, res: Response, next: NextFunction) => {
         const passed = await this.run([AppToken.token, FirebaseAuth.auth], req, res, next);
+        if (passed) next();
+    };
+
+    /**
+     * Admin stack: AppToken → FirebaseAuth → AdminCheck
+     * Use for routes that require administrative privileges.
+     */
+    public admin = async (req: Request, res: Response, next: NextFunction) => {
+        const passed = await this.run([AppToken.token, FirebaseAuth.auth, AdminCheck.check], req, res, next);
         if (passed) next();
     };
 }
