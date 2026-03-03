@@ -31,7 +31,9 @@ const IS_CLOUD_RUN = process.env.K_SERVICE !== undefined;
 const origins = [
     process.env.FRONTEND_URL,
     process.env.CLOUD_RUN_URL,
+    'https://down.auralixpe.xyz',
     /^https:\/\/.*\.mediakeep\.com$/,
+    /^https:\/\/.*\.auralixpe\.xyz$/,
     /^http:\/\/localhost:\d+$/,
     /^https:\/\/.*\.run\.app$/,
 ].filter((o): o is string | RegExp => Boolean(o));
