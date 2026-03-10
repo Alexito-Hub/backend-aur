@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import AppToken from '../../Middleware/appToken';
-import UsageLimit from '../../Middleware/usageLimit';
 import Cache from '../../Utils/System/cache';
 
 export default new class Middlewares {
@@ -42,9 +41,7 @@ export default new class Middlewares {
                 }
             }
 
-            // 3) No cache hit → enforce limit
-            const passed = await this.run([UsageLimit.user, UsageLimit.limit], req, res, next);
-            if (!passed) return;
+            // 3) No cache hit -> proceed without limits
 
             // 4) Wrap res.json to populate the cache on success
             if (url && typeof url === 'string') {
