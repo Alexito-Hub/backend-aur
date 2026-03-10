@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import AppToken from '../../Middleware/appToken';
-import FirebaseAuth from '../../Middleware/firebaseAuth';
 import UsageLimit from '../../Middleware/usageLimit';
-import AdminCheck from '../../Middleware/adminCheck';
 import Cache from '../../Utils/System/cache';
 
 export default new class Middlewares {
@@ -44,7 +42,7 @@ export default new class Middlewares {
                 }
             }
 
-            // 3) No cache hit → decode optional auth token then enforce limit
+            // 3) No cache hit → enforce limit
             const passed = await this.run([UsageLimit.user, UsageLimit.limit], req, res, next);
             if (!passed) return;
 
@@ -62,34 +60,5 @@ export default new class Middlewares {
 
             next();
         };
-    };
-
-    public member = async (req: Request, res: Response, next: NextFunction) => {
-        const passed = await this.run([AppToken.token, FirebaseAuth.auth, UsageLimit.limit], req, res, next);
-        if (passed) next();
-    };
-
-    public pay = async (req: Request, res: Response, next: NextFunction) => {
-        const passed = await this.run([AppToken.token, FirebaseAuth.auth], req, res, next);
-        if (passed) next();
-    };
-
-    /**
-     * Admin stack: AppToken → FirebaseAuth → AdminCheck
-     * Use for routes that require administrative privileges.
-     */
-    public admin = async (req: Request, res: Response, next: NextFunction) => {
-        const passed = await this.run([AppToken.token, FirebaseAuth.auth, AdminCheck.check], req, res, next);
-        if (passed) next();
-    };
-
-    /**
-     * Reward stack: AppToken → FirebaseAuth (Optional Decode)
-     * Does NOT enforce UsageLimits because users come here to get MORE limits.
-     * Both Guests and Authenticated users are welcome.
-     */
-    public reward = async (req: Request, res: Response, next: NextFunction) => {
-        const passed = await this.run([AppToken.token, FirebaseAuth.optionalAuth], req, res, next);
-        if (passed) next();
     };
 }
