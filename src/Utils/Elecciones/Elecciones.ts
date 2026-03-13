@@ -64,17 +64,20 @@ export default new class Srv {
         try {
             const vts = await VotoTotal.find({});
             const map: Record<string, number> = {};
-            vts.forEach(v => { map[v.candidatoId] = v.total; });
+            vts.forEach(v => { map[v.candidatoId] = (map[v.candidatoId] || 0) + v.total; });
             const sum = Object.values(map).reduce((a, b) => a + b, 0);
 
             let jne: any[] = [], pls: any[] = [];
-            try { [jne, pls] = await Promise.all([JNEService.list(), JNEService.plans()]); } catch (e) {}
+            try { [jne, pls] = await Promise.all([JNEService.list(), JNEService.plans()]); } catch (e) { }
 
             const out = jne.filter(j => j.idCargo === 1).map(j => {
                 const c = CANDS.find(x => x.pid === j.idOrganizacionPolitica);
                 const id = c?.id || `jne_${j.idOrganizacionPolitica}`;
+                const jid = `jne_${j.idOrganizacionPolitica}`;
+
+                const v = (map[id] || 0) + (id !== jid ? (map[jid] || 0) : 0);
+
                 const n = `${j.strNombres} ${j.strApellidoPaterno} ${j.strApellidoMaterno}`;
-                const v = map[id] || 0;
                 const p = pls.find(x => x.idOrganizacionPolitica === j.idOrganizacionPolitica);
 
                 return {
