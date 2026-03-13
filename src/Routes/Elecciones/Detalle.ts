@@ -10,7 +10,8 @@ export default {
     validator: AppToken.token,
     execution: async (req: Request, res: Response) => {
         try {
-            const data = await Srv.det(req.params.id);
+                const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+                const data = await Srv.det(id);
             return data ? res.json({ status: true, data }) : res.status(404).json({ status: false });
         } catch (e) {
             return res.status(500).json({ status: false });
