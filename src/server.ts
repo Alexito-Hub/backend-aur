@@ -59,7 +59,7 @@ const run = async () => {
     morgan.token('clientIp', (req) => (req as any).clientIp);
     app.set('json spaces', 2)
         .disable('x-powered-by')
-        .set('trust proxy', 1)
+        .set('trust proxy', true)
         .use(ip.mw())
         .use(helmet({
             contentSecurityPolicy: {
@@ -98,6 +98,7 @@ const run = async () => {
             message: { status: false, msg: 'Demasiadas peticiones a la API. Intenta más tarde.' },
             standardHeaders: true,
             legacyHeaders: false,
+            validate: { trustProxy: false },
         }))
         .use(cookieParser())
         .use(express.json({

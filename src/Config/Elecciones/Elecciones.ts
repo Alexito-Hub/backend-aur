@@ -1,0 +1,47 @@
+export interface Cand { id: string; pid: number; color: string; ideo: string; enc: number; sim: number; }
+
+export const CANDS: Cand[] = [
+    { id: 'aliaga', pid: 22, color: '#e63c3c', ideo: 'Derecha · Conservador', enc: 10.0, sim: 17.2 },
+    { id: 'keiko', pid: 1366, color: '#f97316', ideo: 'Derecha · Conservador', enc: 10.7, sim: 14.2 },
+    { id: 'alvarez', pid: 2956, color: '#10b981', ideo: 'Centro · Independiente', enc: 5.0, sim: 8.9 },
+    { id: 'acuna', pid: 1257, color: '#8b5cf6', ideo: 'Centroderecha · Independiente', enc: 5.2, sim: 8.1 },
+    { id: 'chau', pid: 2980, color: '#0ea5e9', ideo: 'Centroderecha · Tecnocrático', enc: 5.5, sim: 6.3 },
+    { id: 'grozo', pid: 2985, color: '#f59e0b', ideo: 'Centro · Reformista', enc: 4.2, sim: 4.1 },
+    { id: 'sanchez', pid: 1264, color: '#f43f5e', ideo: 'Izquierda · Progresista', enc: 2.4, sim: 3.2 },
+    { id: 'vizcarra', pid: 2925, color: '#64748b', ideo: 'Centro · Independiente', enc: 3.2, sim: 2.8 },
+    { id: 'luna', pid: 2731, color: '#e879f9', ideo: 'Centroderecha · Independiente', enc: 3.0, sim: 2.5 },
+    { id: 'lescano', pid: 2995, color: '#06b6d4', ideo: 'Centro · Socialcristiano', enc: 2.2, sim: 2.1 },
+    { id: 'forsyth', pid: 14, color: '#3b82f6', ideo: 'Centro · Independiente', enc: 1.9, sim: 1.8 },
+    { id: 'belmont', pid: 2941, color: '#a78bfa', ideo: 'Centro · Pro-infraestructura', enc: 1.4, sim: 1.2 },
+    { id: 'williams', pid: 2173, color: '#2dd4bf', ideo: 'Derecha · Liberal', enc: 1.3, sim: 1.1 },
+    { id: 'guevara', pid: 2840, color: '#c084fc', ideo: 'Centroizquierda · Progresista', enc: 1.0, sim: 0.9 },
+    { id: 'olivera', pid: 2857, color: '#fb923c', ideo: 'Centro · Demócrata', enc: 0.9, sim: 0.8 },
+    { id: 'valderrama', pid: 2930, color: '#fbbf24', ideo: 'Centroizquierda · Socialdemócrata', enc: 0.8, sim: 0.7 },
+    { id: 'nieto', pid: 2961, color: '#4ade80', ideo: 'Centro · Tecnocrático', enc: 0.8, sim: 0.6 },
+    { id: 'cerron', pid: 2218, color: '#b91c1c', ideo: 'Izquierda · Marxista-Leninista', enc: 0.7, sim: 0.6 },
+    { id: 'chiabra', pid: 3023, color: '#7c3aed', ideo: 'Derecha · Conservador', enc: 0.6, sim: 0.5 },
+    { id: 'molinelli', pid: 3024, color: '#e11d48', ideo: 'Centroderecha · Liberal', enc: 0.5, sim: 0.5 },
+    { id: 'paz', pid: 2898, color: '#16a34a', ideo: 'Centroderecha · Independiente', enc: 0.5, sim: 0.4 },
+    { id: 'belaunde', pid: 2933, color: '#0369a1', ideo: 'Derecha · Liberal', enc: 0.4, sim: 0.4 },
+    { id: 'chirinos', pid: 2921, color: '#92400e', ideo: 'Centro · Regionalista', enc: 0.4, sim: 0.3 },
+    { id: 'jaico', pid: 2924, color: '#0891b2', ideo: 'Centro · Tecnocrático', enc: 0.3, sim: 0.3 },
+    { id: 'espa', pid: 2935, color: '#d97706', ideo: 'Centro · Independiente', enc: 0.3, sim: 0.3 },
+    { id: 'ortiz', pid: 2927, color: '#b45309', ideo: 'Centro · Independiente', enc: 0.3, sim: 0.2 },
+    { id: 'caller', pid: 2869, color: '#1d4ed8', ideo: 'Centroderecha · Independiente', enc: 0.2, sim: 0.2 },
+    { id: 'carrasco', pid: 2867, color: '#0f766e', ideo: 'Centro · Demócrata', enc: 0.2, sim: 0.2 },
+    { id: 'masse', pid: 2986, color: '#065f46', ideo: 'Centro · Federalista', enc: 0.2, sim: 0.2 },
+    { id: 'atencio', pid: 3025, color: '#7f1d1d', ideo: 'Izquierda · Progresista', enc: 0.2, sim: 0.1 },
+    { id: 'gonzalez', pid: 2895, color: '#166534', ideo: 'Centro · Ecologista', enc: 0.1, sim: 0.1 },
+    { id: 'fernandez', pid: 2998, color: '#9d174d', ideo: 'Centro · Independiente', enc: 0.1, sim: 0.1 },
+    { id: 'diez', pid: 2932, color: '#dc2626', ideo: 'Izquierda · Socialista', enc: 0.1, sim: 0.1 },
+    { id: 'perez', pid: 2931, color: '#be185d', ideo: 'Centroderecha · Independiente', enc: 0.1, sim: 0.1 },
+    { id: 'jaimes', pid: 2967, color: '#1e40af', ideo: 'Centro · Independiente', enc: 0.1, sim: 0.1 },
+];
+
+export const CONF = {
+    COOL: 86400000,
+    MAX: 3,
+    WIN: 600000,
+    EXP: 300000,
+    BOTS: ['curl', 'wget', 'requests', 'http']
+};
