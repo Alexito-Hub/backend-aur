@@ -10,7 +10,6 @@ import { Server } from 'socket.io';
 export default new class Handler {
     public router: Router = express.Router()
 
-
     public async routes(): Promise<Router | undefined> {
         try {
             await Loader.router(path.join(__dirname, '../Routes'));
@@ -20,6 +19,10 @@ export default new class Handler {
 
                 if (!route || !route.name || !route.path || !route.method || !route.execution) {
                     return
+                }
+                if (route.enabled === false) {
+                    logger.info({ name: route.name, path: route.path }, 'Route disabled, skipping');
+                    continue;
                 }
 
                 if (route.name) Config.routes.push({
@@ -35,6 +38,7 @@ export default new class Handler {
                     error: route.error,
                     premium: route.premium,
                     logger: route.logger || false,
+                    enabled: route.enabled || false
                 });
 
                 const error = (route.error ? (req: Request, res: Response, next: NextFunction) => {
@@ -60,12 +64,10 @@ export default new class Handler {
                     } else next();
                 } : route.requires);
 
-                const validator = (route.validator ? route.validator : (req: Request, res: Response, next: NextFunction) => {
-                    next()
-                })
+                const validators: Array<(req: Request, res: Response, next: NextFunction) => void> = !route.validator ? [(_req: Request, _res: Response, next: NextFunction) => next()] : Array.isArray(route.validator) ? route.validator : [route.validator];
 
                 if (typeof (this.router as any)[route.method] === 'function') {
-                    (this.router as any)[route.method.toLowerCase()](route.path, error, requires, validator, route.execution);
+                    (this.router as any)[route.method.toLowerCase()](route.path, error, requires, ...validators, route.execution);
                 }
             })
             return this.router
@@ -82,6 +84,11 @@ export default new class Handler {
 
             io.on('connection', (socket) => {
                 sockets.forEach((data: any) => {
+                    if (data.enabled === false) {
+                        logger.info({ name: data.name }, 'Socket disabled, skipping');
+                        return;
+                    }
+
                     if (data.name) {
                         Config.sockets.push?.({
                             name: data.name,

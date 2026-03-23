@@ -42,12 +42,11 @@ export default class Spotify {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
             }
         }));
-        process.env['SPOTIFY_CLIENT_ID'] = '4c4fc8c3496243cbba99b39826e2841f';
-        process.env['SPOTIFY_CLIENT_SECRET'] = 'd598f89aba0946e2b85fb8aefa9ae4c8';
     }
 
     async spotifyCreds(): Promise<any> {
         return new Promise(async resolve => {
+            if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) return reject('Missing credentials.');
             await this.client.post('https://accounts.spotify.com/api/token', 'grant_type=client_credentials', {
                 headers: { Authorization: 'Basic ' + Buffer.from(process.env.SPOTIFY_CLIENT_ID + ':' + process.env.SPOTIFY_CLIENT_SECRET).toString('base64') }
             }).then(({ data }) => resolve(data)).catch(resolve);
