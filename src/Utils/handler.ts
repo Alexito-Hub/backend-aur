@@ -1,5 +1,4 @@
 import path from 'path';
-import fs from 'fs';
 import Loader from './System/loader';
 import Config from './System/config';
 import Func from './utils';
@@ -11,7 +10,6 @@ import logger from './logger';
 
 export default new class Handler {
     public router: Router = express.Router()
-
 
     public async routes(): Promise<Router | undefined> {
         try {
@@ -42,7 +40,7 @@ export default new class Handler {
                     },
                     error: route.error,
                     premium: route.premium,
-                    logger: route.logger || false,
+                    logger: route.logger || false
                 });
 
                 const error = (route.error ? (req: Request, res: Response, next: NextFunction) => {
@@ -68,7 +66,6 @@ export default new class Handler {
                     } else next();
                 } : route.requires);
 
-                // Normalize validator to always be an array of middlewares
                 const rawValidator = route.validator
                     ? route.validator
                     : (req: Request, res: Response, next: NextFunction) => { next(); };
