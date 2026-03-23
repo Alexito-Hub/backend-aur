@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import SpotifyScraper from '../../../Utils/scrapper/spotify';
+import SpotifyScraper from '../../../Utils/Scrapper/spotify';
 import Middlewares from '../middlewares';
 
 export default {

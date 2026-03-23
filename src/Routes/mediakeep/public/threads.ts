@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import ThreadsScraper from '../../../Utils/scrapper/threads';
+import ThreadsScraper from '../../../Utils/Scrapper/threads';
 import Middlewares from '../middlewares';
 
 export default {

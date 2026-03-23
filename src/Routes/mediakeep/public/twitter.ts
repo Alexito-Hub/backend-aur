@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import Twitter from '../../../Utils/scrapper/twitter';
+import Twitter from '../../../Utils/Scrapper/twitter';
 import Middlewares from '../middlewares';
 
 export default {

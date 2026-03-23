@@ -1,7 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { CookieJar } from "tough-cookie";
 import { wrapper } from "axios-cookiejar-support";
-import fs from "fs";
 
 interface Author {
     username: string;
@@ -94,8 +93,6 @@ export default class Threads {
                 if (!cleaned) return resolve({ status: false, url });
 
                 const threads: any = JSON.parse(cleaned)[0].post;
-
-                fs.writeFileSync("t.json", JSON.stringify(threads, null, 2), "utf8");
 
                 const result: Result = {
                     status: true,

@@ -5,6 +5,8 @@ import Config from './System/config';
 import Func from './utils';
 import express, { Request, Response, NextFunction, Router } from 'express';
 import { Server } from 'socket.io';
+import FeatureFlags from './System/featureFlags';
+import logger from './logger';
 
 
 export default new class Handler {
@@ -20,6 +22,12 @@ export default new class Handler {
 
                 if (!route || !route.name || !route.path || !route.method || !route.execution) {
                     return
+                }
+
+                // Feature flag check
+                if (!FeatureFlags.isEnabled(route.name, route.enabled)) {
+                    logger.info({ route: route.name }, 'Route disabled by feature flag — skipping');
+                    return;
                 }
 
                 if (route.name) Config.routes.push({
@@ -60,12 +68,15 @@ export default new class Handler {
                     } else next();
                 } : route.requires);
 
-                const validator = (route.validator ? route.validator : (req: Request, res: Response, next: NextFunction) => {
-                    next()
-                })
+                // Normalize validator to always be an array of middlewares
+                const rawValidator = route.validator
+                    ? route.validator
+                    : (req: Request, res: Response, next: NextFunction) => { next(); };
+                const validators: Array<(req: Request, res: Response, next: NextFunction) => void> =
+                    Array.isArray(rawValidator) ? rawValidator : [rawValidator];
 
                 if (typeof (this.router as any)[route.method] === 'function') {
-                    (this.router as any)[route.method.toLowerCase()](route.path, error, requires, validator, route.execution);
+                    (this.router as any)[route.method.toLowerCase()](route.path, error, requires, ...validators, route.execution);
                 }
             })
             return this.router
@@ -82,6 +93,12 @@ export default new class Handler {
 
             io.on('connection', (socket) => {
                 sockets.forEach((data: any) => {
+                    // Feature flag check for socket
+                    if (!FeatureFlags.isEnabled(data.name, data.enabled)) {
+                        logger.info({ socket: data.name }, 'Socket disabled by feature flag — skipping');
+                        return;
+                    }
+
                     if (data.name) {
                         Config.sockets.push?.({
                             name: data.name,

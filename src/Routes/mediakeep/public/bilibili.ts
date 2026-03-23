@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import Bilibili from '../../../Utils/scrapper/bilibili';
+import Bilibili from '../../../Utils/Scrapper/bilibili';
 import Middlewares from '../middlewares';
 
 export default {

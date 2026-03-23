@@ -15,6 +15,7 @@ import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 
 import Create from './Utils/handler';
+import Cache from './Utils/System/cache';
 import Storage from './Utils/storage';
 import MongoDB from './Config/database.mongodb';
 import SQLite from './Config/database.sqlite';
@@ -157,6 +158,9 @@ const run = async () => {
             });
         });
     await Create.sockets(io);
+
+    // Periodic cache cleanup — runs every 10 minutes
+    setInterval(() => Cache.sweep(), 10 * 60 * 1000);
 
 
 

@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import TikTokScraper from '../../../Utils/scrapper/tiktok';
+import TikTokScraper from '../../../Utils/Scrapper/tiktok';
 import Middlewares from '../middlewares';
 
 export default {

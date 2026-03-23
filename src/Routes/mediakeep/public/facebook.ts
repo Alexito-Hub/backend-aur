@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import FacebookScraper from '../../../Utils/scrapper/facebook';
+import FacebookScraper from '../../../Utils/Scrapper/facebook';
 import Middlewares from '../middlewares';
 
 export default {

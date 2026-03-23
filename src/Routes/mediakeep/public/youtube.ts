@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import YouTube from '../../../Utils/scrapper/youtube';
+import YouTube from '../../../Utils/Scrapper/youtube';
 import Middlewares from '../middlewares';
 
 export default {

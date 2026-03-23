@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import Instagram from '../../../Utils/scrapper/instagram';
+import Instagram from '../../../Utils/Scrapper/instagram';
 import Middlewares from '../middlewares';
 
 export default {
