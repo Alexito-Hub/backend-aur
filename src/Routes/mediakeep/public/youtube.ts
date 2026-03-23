@@ -31,16 +31,13 @@ export default {
 
         const scraper = new YouTube();
 
-        const sendBufferResponse = (versionLabel: string, bufferResult: { buffer: Buffer; mimetype: string; fileName: string; }) => {
-            return res.status(200).json({
-                status: true,
-                version: versionLabel,
-                data: {
-                    fileName: bufferResult.fileName,
-                    mimetype: bufferResult.mimetype,
-                    base64: bufferResult.buffer.toString('base64')
-                }
-            });
+        const sendMediaResponse = (versionLabel: string, bufferResult: { buffer: Buffer; mimetype: string; fileName: string; }) => {
+            res.status(200)
+                .type(bufferResult.mimetype)
+                .set('Content-Disposition', `attachment; filename="${bufferResult.fileName}"`)
+                .set('Cache-Control', 'no-store')
+                .set('X-Content-Version', versionLabel);
+            return res.send(bufferResult.buffer);
         };
 
         const sendV1Response = (result: any) => {
@@ -62,13 +59,13 @@ export default {
         const tryV2 = async () => {
             const isVideo = mediaType === 'video';
             const bufferResult = await scraper.download_v2(url, { video: isVideo, title });
-            return sendBufferResponse('v2', bufferResult);
+            return sendMediaResponse('v2', bufferResult);
         };
 
         const tryV3 = async () => {
             const isVideo = mediaType === 'video';
             const bufferResult = await scraper.download_v3(url, { video: isVideo, title });
-            return sendBufferResponse('v3', bufferResult);
+            return sendMediaResponse('v3', bufferResult);
         };
 
         try {

@@ -8,8 +8,6 @@ import util from "util";
 
 const execPromise = util.promisify(exec);
 
-// ─── Interfaces internas API ──────────────────────────────────────────────────
-
 interface Item {
     type?: string;
     mediaUrl: string;
@@ -60,8 +58,6 @@ interface ApiData {
 interface ApiResponse {
     api?: ApiData;
 }
-
-// ─── Interfaces públicas ──────────────────────────────────────────────────────
 
 export interface SearchResult {
     id: string;
@@ -159,8 +155,6 @@ export interface YtDlpOpts {
     title?: string;
     cookiesPath?: string;
 }
-
-// ─── Clase principal ──────────────────────────────────────────────────────────
 
 export default class YouTube {
     public baseUrl: string;
@@ -410,14 +404,13 @@ export default class YouTube {
                 }
 
                 const { data: raw } = await axios.get(fileUrl!, { responseType: "arraybuffer" });
-                let buffer = Buffer.from(raw);
-                if (!video) buffer = await this.convertToMp3(buffer);
+                const buffer = Buffer.from(raw);
 
                 const safeTitle = (title ?? api.title ?? "yt").replace(/[\\/:*?"<>|]/g, "").slice(0, 60) || "yt";
                 resolve({
                     buffer,
-                    mimetype: video ? "video/mp4" : "audio/mpeg",
-                    fileName: `${safeTitle}.${video ? "mp4" : "mp3"}`,
+                    mimetype: video ? "video/mp4" : "audio/x-m4a",
+                    fileName: `${safeTitle}.${video ? "mp4" : "m4a"}`,
                 });
             } catch (err) {
                 reject(err);
