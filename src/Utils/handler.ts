@@ -20,10 +20,6 @@ export default new class Handler {
                 if (!route || !route.name || !route.path || !route.method || !route.execution) {
                     return
                 }
-                if (route.enabled === false) {
-                    logger.info({ name: route.name, path: route.path }, 'Route disabled, skipping');
-                    continue;
-                }
 
                 if (route.name) Config.routes.push({
                     category: Func.ucword(route.category),
@@ -37,8 +33,7 @@ export default new class Handler {
                     },
                     error: route.error,
                     premium: route.premium,
-                    logger: route.logger || false,
-                    enabled: route.enabled || false
+                    logger: route.logger || false
                 });
 
                 const error = (route.error ? (req: Request, res: Response, next: NextFunction) => {
@@ -84,11 +79,6 @@ export default new class Handler {
 
             io.on('connection', (socket) => {
                 sockets.forEach((data: any) => {
-                    if (data.enabled === false) {
-                        logger.info({ name: data.name }, 'Socket disabled, skipping');
-                        return;
-                    }
-
                     if (data.name) {
                         Config.sockets.push?.({
                             name: data.name,

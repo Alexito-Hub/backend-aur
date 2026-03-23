@@ -45,7 +45,7 @@ export default class Spotify {
     }
 
     async spotifyCreds(): Promise<any> {
-        return new Promise(async resolve => {
+        return new Promise(async (resolve, reject) => {
             if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) return reject('Missing credentials.');
             await this.client.post('https://accounts.spotify.com/api/token', 'grant_type=client_credentials', {
                 headers: { Authorization: 'Basic ' + Buffer.from(process.env.SPOTIFY_CLIENT_ID + ':' + process.env.SPOTIFY_CLIENT_SECRET).toString('base64') }
