@@ -1,37 +1,50 @@
 import { Server, Socket } from "socket.io";
 import Service from "../../Modules/Elecciones/Service";
 
-let io: Server | null = null;
-let n = 0;
+let _io: Server | null = null;
+let _online = 0;
 
 export default {
     name: "Elecciones",
+
+    init(io: Server) {
+        _io = io;
+    },
+
     async execution(socket: Socket) {
-        if (!io && (socket as any).server) io = (socket as any).server;
-        n++;
-        this.online();
+        _online++;
+        this.emitOnline();
+
+        // Enviar estado actual al cliente que se conecta
         try {
             const res = await Service.res();
             socket.emit("estado", res);
         } catch (e) {}
+
+        // Cliente pide resultados manualmente
         socket.on("get_initial_results", async () => {
-            const res = await Service.res();
-            socket.emit("estado", res);
+            try {
+                const res = await Service.res();
+                socket.emit("estado", res);
+            } catch (e) {}
         });
+
         socket.on("disconnect", () => {
-            n = Math.max(0, n - 1);
-            this.online();
+            _online = Math.max(0, _online - 1);
+            this.emitOnline();
         });
     },
-    online() {
-        if (io) io.emit("presencia", { online: n });
+
+    emitOnline() {
+        _io?.emit("presencia", { online: _online });
     },
+
     async update() {
-        if (!io) return;
+        if (!_io) return;
         try {
             const rs = await Service.res();
-            io.emit("actualizacion", rs);
-            this.online();
+            _io.emit("actualizacion", rs);
+            this.emitOnline();
         } catch (e) {}
     }
 };

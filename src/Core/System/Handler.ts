@@ -9,7 +9,8 @@ import { expressMiddleware } from '@as-integrations/express5';
 import Flags from './Flags';
 import logger from '../Logger/Log';
 import typeDefs from '../../GraphQL/Schema';
-
+import Cache from './Cache';
+import MongoDB from '../Database/MongoDB';
 
 export default new class Handler {
     public router: Router = express.Router()
@@ -85,10 +86,18 @@ export default new class Handler {
             }
         }
     }
+
     public async sockets(io: Server): Promise<void> {
         try {
             await Loader.socket(path.join(__dirname, '../../Socket'));
             const sockets = Object.values(Loader.sockets);
+
+            sockets.forEach((data: any) => {
+                if (typeof data.init === 'function') {
+                    data.init(io);
+                    logger.info({ socket: data.name }, 'Socket io injected');
+                }
+            });
 
             io.on('connection', (socket) => {
                 sockets.forEach((data: any) => {
@@ -120,16 +129,38 @@ export default new class Handler {
         }
     };
 
-    public async graphql(app: Application): Promise<void> {
+    public async graphql(app: Application, sqliteDb?: any): Promise<void> {
         try {
             await Loader.resolver(path.join(__dirname, '../../GraphQL/Resolvers'));
-            
+
             const resolvers = Loader.resolvers.reduce((acc, curr) => {
                 Object.keys(curr).forEach(key => {
                     acc[key] = { ...(acc[key] || {}), ...curr[key] };
                 });
                 return acc;
             }, {});
+
+            Loader.resolvers.forEach((resolver: any) => {
+                if (resolver.Query) {
+                    Object.keys(resolver.Query).forEach(name => {
+                        Config.graphql.queries.push({ name, type: 'Query' });
+                    });
+                }
+                if (resolver.Mutation) {
+                    Object.keys(resolver.Mutation).forEach(name => {
+                        Config.graphql.mutations.push({ name, type: 'Mutation' });
+                    });
+                }
+            });
+
+            let firestoreInstance = null;
+            if (process.env.FIREBASE_PROJECT_ID) {
+                const { firestore } = await import('../Database/Firebase');
+                firestoreInstance = firestore;
+                logger.info('GraphQL context: Firestore enabled');
+            } else {
+                logger.info('GraphQL context: Firestore not configured, skipping');
+            }
 
             const server = new ApolloServer({
                 typeDefs,
@@ -140,7 +171,14 @@ export default new class Handler {
             await server.start();
 
             app.use('/graphql', expressMiddleware(server, {
-                context: async ({ req }: any) => ({ req })
+                context: async ({ req }: any) => ({
+                    req,
+                    user:      (req as any).user ?? null,
+                    cache:     Cache,
+                    mongo:     await MongoDB.init(),
+                    db:        sqliteDb ?? null,
+                    firestore: firestoreInstance,
+                })
             }) as any);
 
             logger.info('GraphQL Server initialized at /graphql');
@@ -150,6 +188,4 @@ export default new class Handler {
             }
         }
     }
-
-
 }

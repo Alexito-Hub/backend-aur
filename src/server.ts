@@ -46,7 +46,7 @@ const io = new SocketIOServer(server, {
 })
 
 const run = async () => {
-    await Promise.all([
+    const [, , sqlite] = await Promise.all([
         MongoDB.init(),
         Storage.init(),
         SQLite.init({
@@ -90,10 +90,9 @@ const run = async () => {
             exposedHeaders: ['X-Total-Count'],
             maxAge: 600
         }))
-        // Infrastructure rate limit strictly for abusive IPs (independent of app usage limits)
         .use(limit({
-            windowMs: 5 * 60 * 1000, // 5 minutes
-            max: IS_PRODUCTION ? 100 : 500, // Limit each IP to 100 requests per windowMs
+            windowMs: 5 * 60 * 1000,
+            max: IS_PRODUCTION ? 100 : 500,
             message: { status: false, msg: 'Demasiadas peticiones a la API. Intenta más tarde.' },
             standardHeaders: true,
             legacyHeaders: false,
@@ -111,7 +110,6 @@ const run = async () => {
             parameterLimit: 1000
         }))
         .use(morgan(IS_PRODUCTION ? 'combined' : ':clientIp :method :url :status :res[content-length] - :response-time ms'))
-        // Global suspicious activity monitor (403/401 burst detection, IP flagging)
         .use(Guard.monitor)
         .use(session({
             secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex'),
@@ -148,14 +146,9 @@ const run = async () => {
                 environment: IS_PRODUCTION ? 'production' : 'development'
             });
         })
-        .use('/uploads', express.static(path.join(__dirname, '../Storage/uploads')))
-        .use(async (req, res, next) => {
-            // This is a placeholder for the async GraphQL initialization 
-            // but actually we want to await it before starting the server.
-            next();
-        });
+        .use('/uploads', express.static(path.join(__dirname, '../Storage/uploads')));
 
-    await Create.graphql(app);
+    await Create.graphql(app, sqlite);
 
     app.use('/', (await Create.routes()) ?? express.Router())
         .use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -165,12 +158,10 @@ const run = async () => {
                 msg: IS_PRODUCTION ? 'Error en el servidor' : err.message
             });
         });
+
     await Create.sockets(io);
 
-    // Periodic cache cleanup — runs every 10 minutes
     setInterval(() => Cache.sweep(), 10 * 60 * 1000);
-
-
 
     server.listen(PORT, '0.0.0.0' as any, () => {
         if (!IS_PRODUCTION) {
