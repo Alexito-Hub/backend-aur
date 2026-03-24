@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import admin from '../Config/firebase';
+import admin from '../Database/Firebase';
 
-export default new class AppCheck {
+export default new class Check {
     public token = async (req: Request, res: Response, next: NextFunction) => {
         const appCheckToken = req.header('X-Firebase-AppCheck');
 

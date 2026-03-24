@@ -14,12 +14,12 @@ import cookieParser from 'cookie-parser';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 
-import Create from './Utils/handler';
-import Cache from './Utils/System/cache';
-import Storage from './Utils/storage';
-import MongoDB from './Config/database.mongodb';
-import SQLite from './Config/database.sqlite';
-import SuspiciousActivityLogger from './Middleware/suspiciousActivity';
+import Create from './Core/System/Handler';
+import Cache from './Core/System/Cache';
+import Storage from './Core/Storage/Storage';
+import MongoDB from './Core/Database/MongoDB';
+import SQLite from './Core/Database/SQLite';
+import Guard from './Core/Middleware/Guard';
 
 dotenv.config();
 
@@ -112,7 +112,7 @@ const run = async () => {
         }))
         .use(morgan(IS_PRODUCTION ? 'combined' : ':clientIp :method :url :status :res[content-length] - :response-time ms'))
         // Global suspicious activity monitor (403/401 burst detection, IP flagging)
-        .use(SuspiciousActivityLogger.monitor)
+        .use(Guard.monitor)
         .use(session({
             secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex'),
             name: '__session',

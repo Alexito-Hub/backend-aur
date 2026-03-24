@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
-import AppToken from '../../Middleware/appToken';
-import Cache from '../../Utils/System/cache';
+import Token from '../../Core/Middleware/Token';
+import Cache from '../../Core/System/Cache';
 import axios from 'axios';
 
 /**
@@ -186,7 +186,7 @@ export default {
     premium: false,
     error: false,
     logger: false,
-    validator: AppToken.token,
+    validator: Token.token,
 
     execution: async (req: Request, res: Response) => {
         // Check cache first

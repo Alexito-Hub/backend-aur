@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export class JNEService {
+export class JNE {
     private static BASE = 'https://web.jne.gob.pe/serviciovotoinformado/api/votoinf';
     private static HEAD = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',

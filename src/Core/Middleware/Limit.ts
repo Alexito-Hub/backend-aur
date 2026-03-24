@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import admin from '../Config/firebase';
+import admin from '../Database/Firebase';
 import crypto from 'crypto';
 
-export default new class UsageLimit {
+export default new class Limit {
     /**
      * Validates strictly the 5 limit for unauth and 10 limit for auth.
      */
@@ -14,7 +14,7 @@ export default new class UsageLimit {
             if (user) {
                 // Authenticated user limit check
                 const userRef = db.collection('users').doc(user.uid);
-                await db.runTransaction(async (transaction) => {
+                await db.runTransaction(async (transaction: any) => {
                     const doc = await transaction.get(userRef);
 
                     if (!doc.exists) {
@@ -61,7 +61,7 @@ export default new class UsageLimit {
                 const hash = crypto.createHash('sha256').update(`${ip}-${fingerprint}`).digest('hex');
 
                 const unauthRef = db.collection('unauth_usage').doc(hash);
-                await db.runTransaction(async (transaction) => {
+                await db.runTransaction(async (transaction: any) => {
                     const doc = await transaction.get(unauthRef);
 
                     if (!doc.exists) {

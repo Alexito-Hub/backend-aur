@@ -1,10 +1,10 @@
-import { Votante, VotoTotal, SecurityLog } from '../../Models/Elecciones/Elecciones';
-import { CANDS, CONF } from '../../Config/Elecciones/Elecciones';
-import { JNEService } from './JNEService';
+import { Votante, VotoTotal, SecurityLog } from './Model';
+import { CANDS, CONF } from './Config';
+import { JNE } from '../../Core/Scraper/JNE';
 import mongoose from 'mongoose';
 import crypto from 'crypto';
 
-export default new class Srv {
+export default new class Service {
     private tks = new Set<string>();
 
     public tk(): string {
@@ -68,7 +68,7 @@ export default new class Srv {
             const sum = Object.values(map).reduce((a, b) => a + b, 0);
 
             let jne: any[] = [], pls: any[] = [];
-            try { [jne, pls] = await Promise.all([JNEService.list(), JNEService.plans()]); } catch (e) { }
+            try { [jne, pls] = await Promise.all([JNE.list(), JNE.plans()]); } catch (e) { }
 
             const out = jne.filter(j => j.idCargo === 1).map(j => {
                 const c = CANDS.find(x => x.pid === j.idOrganizacionPolitica);
@@ -109,10 +109,10 @@ export default new class Srv {
         const pid = id.startsWith('jne_') ? parseInt(id.replace('jne_', '')) : CANDS.find(c => c.id === id)?.pid;
         if (!pid) return { status: false };
         try {
-            const pls = await JNEService.plans();
+            const pls = await JNE.plans();
             const p = pls.find(x => x.idOrganizacionPolitica === pid);
             if (!p) return { status: false };
-            const d = await JNEService.detail(p.idPlanGobierno);
+            const d = await JNE.detail(p.idPlanGobierno);
             const r: string[] = [];
             if (d.dimensionSocial) r.push(...d.dimensionSocial.slice(0, 2).map((x: any) => x.txPgObjetivo.split('\n')[0]));
             if (d.dimensionEconomica) r.push(...d.dimensionEconomica.slice(0, 2).map((x: any) => x.txPgObjetivo.split('\n')[0]));

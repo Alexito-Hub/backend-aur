@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-export default new class AntiBot {
+export default new class Bot {
     private readonly bots = ['curl', 'wget', 'python', 'go-http', 'java', 'scrapy', 'httpx', 'libwww', 'okhttp', 'headless'];
     public detect = (req: Request, res: Response, next: NextFunction) => {
         const ua = (req.headers['user-agent'] || '').toLowerCase();

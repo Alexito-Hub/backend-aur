@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import Srv from "../../Utils/Elecciones/Elecciones";
+import Service from "../../Modules/Elecciones/Service";
 
 let io: Server | null = null;
 let n = 0;
@@ -11,11 +11,11 @@ export default {
         n++;
         this.online();
         try {
-            const res = await Srv.res();
+            const res = await Service.res();
             socket.emit("estado", res);
         } catch (e) {}
         socket.on("get_initial_results", async () => {
-            const res = await Srv.res();
+            const res = await Service.res();
             socket.emit("estado", res);
         });
         socket.on("disconnect", () => {
@@ -29,7 +29,7 @@ export default {
     async update() {
         if (!io) return;
         try {
-            const rs = await Srv.res();
+            const rs = await Service.res();
             io.emit("actualizacion", rs);
             this.online();
         } catch (e) {}

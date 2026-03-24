@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import logger from "../Utils/logger";
+import logger from "../Logger/Log";
 
 export default class MongoDB {
     private static db: mongoose.Mongoose | null = null

@@ -1,11 +1,11 @@
 import path from 'path';
-import Loader from './System/loader';
-import Config from './System/config';
-import Func from './utils';
+import Loader from './Loader';
+import Config from './Config';
+import Func from '../Utils/Utils';
 import express, { Request, Response, NextFunction, Router } from 'express';
 import { Server } from 'socket.io';
-import FeatureFlags from './System/featureFlags';
-import logger from './logger';
+import Flags from './Flags';
+import logger from '../Logger/Log';
 
 
 export default new class Handler {
@@ -13,7 +13,7 @@ export default new class Handler {
 
     public async routes(): Promise<Router | undefined> {
         try {
-            await Loader.router(path.join(__dirname, '../Routes'));
+            await Loader.router(path.join(__dirname, '../../Routes'));
             const routers = Object.values(Loader.plugins);
             routers.forEach((v: any) => {
                 const route = v
@@ -22,8 +22,7 @@ export default new class Handler {
                     return
                 }
 
-                // Feature flag check
-                if (!FeatureFlags.isEnabled(route.name, route.enabled)) {
+                if (!Flags.isEnabled(route.name, route.enabled)) {
                     logger.info({ route: route.name }, 'Route disabled by feature flag — skipping');
                     return;
                 }
@@ -85,13 +84,13 @@ export default new class Handler {
     }
     public async sockets(io: Server): Promise<void> {
         try {
-            await Loader.socket(path.join(__dirname, '../Socket'));
+            await Loader.socket(path.join(__dirname, '../../Socket'));
             const sockets = Object.values(Loader.sockets);
 
             io.on('connection', (socket) => {
                 sockets.forEach((data: any) => {
                     // Feature flag check for socket
-                    if (!FeatureFlags.isEnabled(data.name, data.enabled)) {
+                    if (!Flags.isEnabled(data.name, data.enabled)) {
                         logger.info({ socket: data.name }, 'Socket disabled by feature flag — skipping');
                         return;
                     }

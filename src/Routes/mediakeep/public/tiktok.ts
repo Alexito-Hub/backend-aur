@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import TikTokScraper from '../../../Utils/Scrapper/tiktok';
+import TikTok from '../../../Core/Scraper/tiktok';
 import Middlewares from '../middlewares';
 
 export default {
@@ -27,7 +27,7 @@ export default {
         const { url } = req.body;
         try {
 
-            const result = await TikTokScraper.download(url);
+            const result = await TikTok.download(url);
 
             if (!result.status || !result.data) {
                 return res.status(404).json({

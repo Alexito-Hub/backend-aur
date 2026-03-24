@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import Srv from '../../Utils/Elecciones/Elecciones';
+import Service from '../../Modules/Elecciones/Service';
 import Sock from '../../Socket/Elecciones/Elecciones';
-import AppToken from '../../Middleware/appToken';
+import Token from '../../Core/Middleware/Token';
 
 export default {
     name: 'Reset',
@@ -10,14 +10,14 @@ export default {
     category: 'Elecciones',
     parameter: ['token'],
     premium: true,
-    validator: AppToken.token,
+    validator: Token.token,
     execution: async (req: Request, res: Response) => {
         try {
             const { token } = req.body;
             if (!process.env.APP_SECRET_TOKEN || token !== process.env.APP_SECRET_TOKEN) {
                 return res.status(403).json({ status: false, msg: 'No autorizado.' });
             }
-            await Srv.rst();
+            await Service.rst();
             Sock.update();
             return res.json({ status: true, msg: 'Sistema reiniciado.' });
         } catch (e) {

@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import SpotifyScraper from '../../Utils/Scrapper/spotify';
+import Spotify from '../../Core/Scraper/spotify';
 
 // Simple in-memory cache (6 hours TTL)
 interface CacheEntry {
@@ -56,7 +56,7 @@ export default {
 
             // Cache miss - fetch new stream URL
             console.log(`[Cache MISS] Track ${trackId} - Fetching...`);
-            const scraper = new SpotifyScraper();
+            const scraper = new Spotify();
             const result = await scraper.download(url);
 
             if (!result || !result.download) {

@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import logger from "../Utils/logger";
+import logger from "../Core/Logger/Log";
 
 export default {
     name: "ping",

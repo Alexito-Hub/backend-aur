@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import ThreadsScraper from '../../../Utils/Scrapper/threads';
+import Threads from '../../../Core/Scraper/threads';
 import Middlewares from '../middlewares';
 
 export default {
@@ -24,19 +24,20 @@ export default {
     },
     validator: Middlewares.guest('threads'),
     execution: async (req: Request, res: Response) => {
-        const { url } = req.body;
         try {
-            const scraper = new ThreadsScraper();
-            const result = await scraper.download(url);
+            const { url } = req.body;
+            const scraper = new Threads();
+            const results = await scraper.download(url);
 
-            if (!result.status) {
+
+            if (!results.status) {
                 return res.status(404).json({
                     status: false,
                     msg: 'No se encontró contenido para descargar.'
                 });
             }
 
-            return res.status(200).json(result);
+            return res.status(200).json(results);
 
         } catch (e: any) {
             console.error('Error en descarga de Threads:', e);

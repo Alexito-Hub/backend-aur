@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import admin from '../Config/firebase';
+import admin from '../Database/Firebase';
 
 const db = admin.firestore();
 
-export default new class AdminCheck {
+export default new class Admin {
     /**
      * Verifies that the authenticated user has the admin role in Firestore.
      * Must be used AFTER firebaseAuth.ts injects req.user.

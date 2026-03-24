@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import SpotifyScraper from '../../Utils/Scrapper/spotify';
+import Spotify from '../../Core/Scraper/spotify';
 
 export default {
     name: 'Search Spotify Tracks',
@@ -24,7 +24,7 @@ export default {
     execution: async (req: Request, res: Response) => {
         const { query, limit = 20 } = req.body;
         try {
-            const scraper = new SpotifyScraper();
+            const scraper = new Spotify();
             const results = await scraper.search(query, 'track', limit);
 
             if (!results || results.length === 0) {

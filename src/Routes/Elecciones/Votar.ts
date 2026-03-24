@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
-import AppToken from '../../Middleware/appToken';
-import AntiBot from '../../Middleware/antiBot';
-import Srv from '../../Utils/Elecciones/Elecciones';
+import Token from '../../Core/Middleware/Token';
+import Bot from '../../Core/Middleware/Bot';
+import Service from '../../Modules/Elecciones/Service';
 import Sock from '../../Socket/Elecciones/Elecciones';
 
 const hash = (d: string) => crypto.createHash('sha256').update(d).digest('hex');
@@ -13,15 +13,15 @@ export default {
     method: 'post',
     category: 'Elecciones',
     parameter: ['token', 'candidato_id', 'fingerprint_cliente', 'nombre'],
-    validator: [AppToken.token, AntiBot.detect],
+    validator: [Token.token, Bot.detect],
     execution: async (req: Request, res: Response) => {
         try {
             const ip = (req as any).clientIp || req.socket.remoteAddress || '';
             const ua = req.headers['user-agent'] || '';
             const { token, candidato_id, fingerprint_cliente, nombre } = req.body;
 
-            if (!Srv.vfy(token)) {
-                await Srv.bad(ip);
+            if (!Service.vfy(token)) {
+                await Service.bad(ip);
                 return res.status(403).json({ status: false, msg: 'Sesion invalida.' });
             }
 
@@ -30,12 +30,12 @@ export default {
                 return res.status(400).json({ status: false, msg: 'Nombre invalido.' });
             }
 
-            if (!(await Srv.ok(ip))) {
+            if (!(await Service.ok(ip))) {
                 return res.status(429).json({ status: false, msg: 'Bloqueo temporal.' });
             }
 
             const fp = hash(`${hash(`${ip}|${ua}|${req.headers['accept-language'] || ''}`)}|${fingerprint_cliente || ''}`);
-            const ok = await Srv.vote(candidato_id, fp, ip, name);
+            const ok = await Service.vote(candidato_id, fp, ip, name);
             if (!ok.status) return res.status(409).json({ status: false, msg: ok.msg });
 
             Sock.update();

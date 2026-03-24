@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import admin from '../Config/firebase';
+import admin from '../Database/Firebase';
 
 const db = admin.firestore();
 
@@ -13,7 +13,7 @@ const db = admin.firestore();
  *  - Malformed request bodies
  *  - Unknown platform attempts
  */
-export default new class SuspiciousActivityLogger {
+export default new class Guard {
 
     /** Tracks recent 403/401 responses per IP for burst detection */
     private readonly recentViolations = new Map<string, { count: number; firstSeen: number }>();

@@ -11,7 +11,7 @@
  *     updated_at INTEGER NOT NULL
  *   );
  */
-export default new class FeatureFlags {
+export default new class Flags {
     /** name → enabled override (loaded from DB or set programmatically) */
     private overrides: Map<string, boolean> = new Map();
 

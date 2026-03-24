@@ -1,9 +1,9 @@
 import fs from 'fs';
 import Database from 'better-sqlite3';
 import { performance } from 'perf_hooks';
-import logger, { ILogger } from '../Utils/logger';
+import logger, { ILogger } from '../Logger/Log';
 
-import * as Proto from '../../Proto/database';
+import * as Proto from '../../../Proto/database';
 
 export const profiling = (name: string, func: () => any) => {
     const start = performance.now()

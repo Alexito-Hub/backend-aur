@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import logger from '../logger';
+import logger from '../Logger/Log';
 
 
 const readdir = promisify(fs.readdir);

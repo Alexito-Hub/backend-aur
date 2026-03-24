@@ -3,7 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { promisify } from 'util';
 import { Storage as GCStorage } from '@google-cloud/storage';
-import logger from './logger';
+import logger from '../Logger/Log';
 
 const writeFile = promisify(fs.writeFile);
 const mkdir = promisify(fs.mkdir);

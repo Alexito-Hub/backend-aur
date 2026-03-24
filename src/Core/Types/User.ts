@@ -1,4 +1,4 @@
-import { database } from '../../Proto/database';
+import { database } from '../../../Proto/database';
 
 export const INITIAL_BALANCE = 1000;
 

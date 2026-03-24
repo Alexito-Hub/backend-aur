@@ -1,20 +1,20 @@
 import { Request, Response } from 'express';
-import Cache from '../../Utils/System/cache';
-import AppToken from '../../Middleware/appToken';
-import AntiBot from '../../Middleware/antiBot';
-import Srv from '../../Utils/Elecciones/Elecciones';
+import Cache from '../../Core/System/Cache';
+import Token from '../../Core/Middleware/Token';
+import Bot from '../../Core/Middleware/Bot';
+import Service from '../../Modules/Elecciones/Service';
 
 export default {
     name: 'Resultados',
     path: '/api/resultados',
     method: 'get',
     category: 'Elecciones',
-    validator: [AppToken.token, AntiBot.detect],
+    validator: [Token.token, Bot.detect],
     execution: async (req: Request, res: Response) => {
         try {
             const cached = Cache.get('elecciones_resultados');
             if (cached) return res.json({ status: true, data: cached });
-            const data = await Srv.res();
+            const data = await Service.res();
             Cache.set('elecciones_resultados', data, 30);
             return res.json({ status: true, data });
         } catch (e) {

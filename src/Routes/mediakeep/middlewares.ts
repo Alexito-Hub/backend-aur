@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import AppToken from '../../Middleware/appToken';
-import Cache from '../../Utils/System/cache';
+import Token from '../../Core/Middleware/Token';
+import Cache from '../../Core/System/Cache';
 
 export default new class Middlewares {
     private async run(mws: any[], req: Request, res: Response, next: NextFunction) {
@@ -33,7 +33,7 @@ export default new class Middlewares {
             }
 
             // 1) Always validate the app token first
-            const tokenPassed = await this.run([AppToken.token], req, res, next);
+            const tokenPassed = await this.run([Token.token], req, res, next);
             if (!tokenPassed) return;
 
             // 2) Check cache BEFORE incrementing the usage counter so cached

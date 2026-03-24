@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import SpotifyScraper from '../../../Utils/Scrapper/spotify';
+import Spotify from '../../../Core/Scraper/spotify';
 import Middlewares from '../middlewares';
 
 export default {
@@ -24,12 +24,13 @@ export default {
     },
     validator: Middlewares.guest('spotify'),
     execution: async (req: Request, res: Response) => {
-        const { url } = req.body;
         try {
-            const scraper = new SpotifyScraper();
-            const result = await scraper.download(url);
+            const { url } = req.body;
+            const scraper = new Spotify();
+            const results = await scraper.download(url);
 
-            if (!result) {
+
+            if (!results) {
                 return res.status(404).json({
                     status: false,
                     msg: 'No se encontró contenido para descargar.'
@@ -38,7 +39,7 @@ export default {
 
             return res.status(200).json({
                 status: true,
-                data: result
+                data: results
             });
 
         } catch (e: any) {

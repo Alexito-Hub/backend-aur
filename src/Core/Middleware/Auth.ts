@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import admin from '../Config/firebase';
+import admin from '../Database/Firebase';
 
-export default new class FirebaseAuth {
+export default new class Auth {
     /**
      * Validates the Firebase ID token for authenticated routes.
      */
