@@ -13,6 +13,7 @@ import CFonts from 'cfonts';
 import cookieParser from 'cookie-parser';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
+import { WebSocketServer } from 'ws';
 
 import Create from './Core/System/Handler';
 import Cache from './Core/System/Cache';
@@ -43,7 +44,19 @@ const io = new SocketIOServer(server, {
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true
     }
-})
+});
+
+const wss = new WebSocketServer({ noServer: true });
+
+server.on('upgrade', (request, socket, head) => {
+    const { pathname } = new URL(request.url!, `http://${request.headers.host}`);
+
+    if (pathname === '/ws-pure') {
+        wss.handleUpgrade(request, socket, head, (ws) => {
+            wss.emit('connection', ws, request);
+        });
+    }
+});
 
 const run = async () => {
     const [, , sqlite] = await Promise.all([
@@ -160,6 +173,7 @@ const run = async () => {
         });
 
     await Create.sockets(io);
+    await Create.websockets(wss);
 
     setInterval(() => Cache.sweep(), 10 * 60 * 1000);
 

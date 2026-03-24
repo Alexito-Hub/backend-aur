@@ -4,6 +4,8 @@ import Config from './Config';
 import Func from '../Utils/Utils';
 import express, { Request, Response, NextFunction, Router, Application } from 'express';
 import { Server } from 'socket.io';
+import { WebSocketServer } from 'ws';
+import WSDispatcher from '../../WebSocket/Dispatcher';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
 import Flags from './Flags';
@@ -128,6 +130,19 @@ export default new class Handler {
             }
         }
     };
+
+    public async websockets(wss: WebSocketServer): Promise<void> {
+        try {
+            await Loader.websocketPure(path.join(__dirname, '../../WebSocket/Handlers'));
+            const modules = Object.values(Loader.websockets);
+            WSDispatcher.init(wss, modules);
+            logger.info('Pure WebSockets initialized successfully');
+        } catch (err) {
+            if (err instanceof Error) {
+                throw new Error(`Failed to load pure websockets: ${err.message}`);
+            }
+        }
+    }
 
     public async graphql(app: Application, sqliteDb?: any): Promise<void> {
         try {

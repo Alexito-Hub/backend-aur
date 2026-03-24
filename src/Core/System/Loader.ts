@@ -11,6 +11,7 @@ const resolve = path.resolve;
 export default new class Loader {
     public plugins: Record<string, any> = {}
     public sockets: Record<string, any> = {}
+    public websockets: Record<string, any> = {}
     public resolvers: any[] = []
 
 
@@ -48,6 +49,24 @@ export default new class Loader {
             }
         }
         this.sockets = Object.fromEntries(entries);
+    }
+
+    public async websocketPure(dir: string): Promise<void> {
+        const files = await this.scandir(dir);
+        const entries: [string, any][] = [];
+        for (const file of files) {
+            if (file.endsWith('.ts') || file.endsWith('.js')) {
+                const name = path.basename(file).replace(/\.(ts|js)$/, '');
+                try {
+                    const mod = await import(file);
+                    entries.push([name, mod.default || mod]);
+                    logger.info({ file, name }, 'Pure WebSocket loaded successfully');
+                } catch (err: any) {
+                    logger.error({ file, error: err.message }, 'Error importing pure websocket');
+                }
+            }
+        }
+        this.websockets = Object.fromEntries(entries);
     }
 
     public async resolver(dir: string): Promise<void> {
