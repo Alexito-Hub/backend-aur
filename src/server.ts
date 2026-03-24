@@ -149,7 +149,15 @@ const run = async () => {
             });
         })
         .use('/uploads', express.static(path.join(__dirname, '../Storage/uploads')))
-        .use('/', (await Create.routes()) ?? express.Router())
+        .use(async (req, res, next) => {
+            // This is a placeholder for the async GraphQL initialization 
+            // but actually we want to await it before starting the server.
+            next();
+        });
+
+    await Create.graphql(app);
+
+    app.use('/', (await Create.routes()) ?? express.Router())
         .use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
             console.error('Error:', err);
             res.status(err.status || 500).json({

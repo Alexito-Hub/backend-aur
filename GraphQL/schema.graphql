@@ -26,6 +26,21 @@ type Collection {
   settings: Settings
 }
 
+type YouTubeVideo {
+  id: String
+  url: String
+  title: String
+  author: String
+  description: String
+  viewers: String
+  verified: Boolean
+  duration: String
+  thumbnail: String
+  avatar: String
+  published: String
+}
+
 type Query {
   collection: Collection
+  searchYouTube(query: String!): [YouTubeVideo]
 }

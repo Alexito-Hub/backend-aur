@@ -11,6 +11,7 @@ const resolve = path.resolve;
 export default new class Loader {
     public plugins: Record<string, any> = {}
     public sockets: Record<string, any> = {}
+    public resolvers: any[] = []
 
 
     public async router(dir: string): Promise<void> {
@@ -49,6 +50,20 @@ export default new class Loader {
         this.sockets = Object.fromEntries(entries);
     }
 
+    public async resolver(dir: string): Promise<void> {
+        const files = await this.scandir(dir);
+        for (const file of files) {
+            if (file.endsWith('.ts') || file.endsWith('.js')) {
+                try {
+                    const mod = await import(file);
+                    this.resolvers.push(mod.default || mod);
+                    logger.info({ file }, 'Resolver loaded successfully');
+                } catch (err: any) {
+                    logger.error({ file, error: err.message }, 'Error importing resolver');
+                }
+            }
+        }
+    }
 
 
     private async scandir(dir: string): Promise<string[]> {

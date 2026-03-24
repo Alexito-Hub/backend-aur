@@ -2,10 +2,13 @@ import path from 'path';
 import Loader from './Loader';
 import Config from './Config';
 import Func from '../Utils/Utils';
-import express, { Request, Response, NextFunction, Router } from 'express';
+import express, { Request, Response, NextFunction, Router, Application } from 'express';
 import { Server } from 'socket.io';
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@as-integrations/express5';
 import Flags from './Flags';
 import logger from '../Logger/Log';
+import typeDefs from '../../GraphQL/Schema';
 
 
 export default new class Handler {
@@ -89,7 +92,6 @@ export default new class Handler {
 
             io.on('connection', (socket) => {
                 sockets.forEach((data: any) => {
-                    // Feature flag check for socket
                     if (!Flags.isEnabled(data.name, data.enabled)) {
                         logger.info({ socket: data.name }, 'Socket disabled by feature flag — skipping');
                         return;
@@ -117,6 +119,37 @@ export default new class Handler {
             }
         }
     };
+
+    public async graphql(app: Application): Promise<void> {
+        try {
+            await Loader.resolver(path.join(__dirname, '../../GraphQL/Resolvers'));
+            
+            const resolvers = Loader.resolvers.reduce((acc, curr) => {
+                Object.keys(curr).forEach(key => {
+                    acc[key] = { ...(acc[key] || {}), ...curr[key] };
+                });
+                return acc;
+            }, {});
+
+            const server = new ApolloServer({
+                typeDefs,
+                resolvers,
+                introspection: process.env.NODE_ENV !== 'production'
+            });
+
+            await server.start();
+
+            app.use('/graphql', expressMiddleware(server, {
+                context: async ({ req }: any) => ({ req })
+            }) as any);
+
+            logger.info('GraphQL Server initialized at /graphql');
+        } catch (err) {
+            if (err instanceof Error) {
+                throw new Error(`Failed to initialize GraphQL: ${err.message}`);
+            }
+        }
+    }
 
 
 }
