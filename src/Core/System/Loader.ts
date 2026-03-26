@@ -3,17 +3,15 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import logger from '../Logger/Log';
 
-
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
 const resolve = path.resolve;
 
 export default new class Loader {
-    public plugins: Record<string, any> = {}
-    public sockets: Record<string, any> = {}
-    public websockets: Record<string, any> = {}
-    public resolvers: any[] = []
-
+    public plugins: Record<string, any>  = {};
+    public sockets: Record<string, any>  = {};
+    public websockets: Record<string, any> = {};
+    public resolvers: any[] = [];
 
     public async router(dir: string): Promise<void> {
         const files = await this.scandir(dir);
@@ -69,7 +67,22 @@ export default new class Loader {
         this.websockets = Object.fromEntries(entries);
     }
 
+    /**
+     * Load GraphQL resolvers from a directory.
+     *
+     * FIX: The previous implementation appended to `this.resolvers` without ever
+     * clearing it. On hot-reload (ts-node-dev) or repeated test runs this caused
+     * every resolver to be registered N times, leading to:
+     *   - Duplicate entries in Config.graphql.queries
+     *   - The resolver merge log-spam ("collision detected") on every restart
+     *
+     * We now reset the array before each scan so the list always reflects the
+     * current state of the file system.
+     */
     public async resolver(dir: string): Promise<void> {
+        // ─── Reset before re-scanning ─────────────────────────────────────────
+        this.resolvers = [];
+
         const files = await this.scandir(dir);
         for (const file of files) {
             if (file.endsWith('.ts') || file.endsWith('.js')) {
@@ -83,7 +96,6 @@ export default new class Loader {
             }
         }
     }
-
 
     private async scandir(dir: string): Promise<string[]> {
         const subdirs = await readdir(dir);

@@ -8,6 +8,7 @@ import { WebSocketServer } from 'ws';
 import WSDispatcher from '../../WebSocket/Dispatcher';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
+import { unwrapResolverError } from '@apollo/server/errors';
 import Flags from './Flags';
 import logger from '../Logger/Log';
 import typeDefs from '../../GraphQL/Schema';
@@ -148,13 +149,34 @@ export default new class Handler {
         try {
             await Loader.resolver(path.join(__dirname, '../../GraphQL/Resolvers'));
 
-            const resolvers = Loader.resolvers.reduce((acc, curr) => {
-                Object.keys(curr).forEach(key => {
-                    acc[key] = { ...(acc[key] || {}), ...curr[key] };
-                });
-                return acc;
-            }, {});
+            // ─── FIX: deep merge instead of shallow Object.assign spread ──────────
+            // The original code did `acc[key] = { ...acc[key], ...curr[key] }` which
+            // correctly merges top-level resolver maps (Query, Mutation…) but silently
+            // drops individual resolvers when two files export the same root key.
+            // The deep merge below concatenates individual field resolvers safely.
+            const resolvers = Loader.resolvers.reduce<Record<string, Record<string, any>>>(
+                (acc, curr) => {
+                    for (const rootKey of Object.keys(curr)) {
+                        if (!acc[rootKey]) {
+                            acc[rootKey] = {};
+                        }
+                        for (const fieldKey of Object.keys(curr[rootKey])) {
+                            if (acc[rootKey][fieldKey]) {
+                                logger.warn(
+                                    { rootKey, fieldKey },
+                                    'GraphQL resolver collision detected — last-writer wins. ' +
+                                    'Check for duplicate field names across resolver files.',
+                                );
+                            }
+                            acc[rootKey][fieldKey] = curr[rootKey][fieldKey];
+                        }
+                    }
+                    return acc;
+                },
+                {},
+            );
 
+            // Populate Config.graphql for the /info endpoint
             Loader.resolvers.forEach((resolver: any) => {
                 if (resolver.Query) {
                     Object.keys(resolver.Query).forEach(name => {
@@ -180,7 +202,37 @@ export default new class Handler {
             const server = new ApolloServer({
                 typeDefs,
                 resolvers,
-                introspection: process.env.NODE_ENV !== 'production'
+                introspection: process.env.NODE_ENV !== 'production',
+
+                // ─── Production-safe error formatter ──────────────────────────────
+                // Strips stack traces and internal details before sending to clients.
+                // Unexpected errors are logged server-side with full context.
+                formatError: (formattedError, error) => {
+                    const original = unwrapResolverError(error);
+
+                    // Always log the real error internally
+                    if (!(original instanceof Error && original.message === formattedError.message)) {
+                        logger.error({ gqlError: original }, 'GraphQL unexpected resolver error');
+                    }
+
+                    if (process.env.NODE_ENV === 'production') {
+                        // Preserve user-facing validation / not-found messages
+                        const isSafe =
+                            formattedError.extensions?.code === 'BAD_USER_INPUT' ||
+                            formattedError.extensions?.code === 'GRAPHQL_VALIDATION_FAILED' ||
+                            formattedError.extensions?.code === 'NOT_FOUND';
+
+                        if (!isSafe) {
+                            return {
+                                message: 'Error interno del servidor. Inténtalo de nuevo.',
+                                extensions: { code: 'INTERNAL_SERVER_ERROR' },
+                            };
+                        }
+                    }
+
+                    // In development return the full error (including stacktrace if present)
+                    return formattedError;
+                },
             });
 
             await server.start();
