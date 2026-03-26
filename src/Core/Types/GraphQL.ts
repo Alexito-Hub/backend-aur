@@ -17,5 +17,5 @@ export interface GraphQLContext {
     cache:     typeof Cache;
     mongo:     typeof mongoose;
     db:        SQLiteDB | null;
-    firestore: FirebaseFirestore.Firestore | null;
+
 }

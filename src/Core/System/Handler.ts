@@ -190,14 +190,7 @@ export default new class Handler {
                 }
             });
 
-            let firestoreInstance = null;
-            if (process.env.FIREBASE_PROJECT_ID) {
-                const { firestore } = await import('../Database/Firebase');
-                firestoreInstance = firestore;
-                logger.info('GraphQL context: Firestore enabled');
-            } else {
-                logger.info('GraphQL context: Firestore not configured, skipping');
-            }
+            logger.info('GraphQL context: Firestore removed by Auralix Hub architecture');
 
             const server = new ApolloServer({
                 typeDefs,
@@ -244,7 +237,7 @@ export default new class Handler {
                     cache:     Cache,
                     mongo:     await MongoDB.init(),
                     db:        sqliteDb ?? null,
-                    firestore: firestoreInstance,
+
                 })
             }) as any);
 

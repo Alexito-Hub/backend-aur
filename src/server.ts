@@ -20,7 +20,7 @@ import Cache from './Core/System/Cache';
 import Storage from './Core/Storage/Storage';
 import MongoDB from './Core/Database/MongoDB';
 import SQLite from './Core/Database/SQLite';
-import Guard from './Core/Middleware/Guard';
+
 
 dotenv.config();
 
@@ -123,7 +123,7 @@ const run = async () => {
             parameterLimit: 1000
         }))
         .use(morgan(IS_PRODUCTION ? 'combined' : ':clientIp :method :url :status :res[content-length] - :response-time ms'))
-        .use(Guard.monitor)
+
         .use(session({
             secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex'),
             name: '__session',

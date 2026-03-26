@@ -1,0 +1,26 @@
+import { Request, Response } from 'express';
+import { HubCaptcha } from '../../../Modules/Hub/Models';
+import { captchaLimiter } from '../../../Modules/Hub/Middleware';
+
+export default {
+    name: 'Hub Captcha Verify', path: '/api/hub/captcha/verify', method: 'post', category: 'hub',
+    validator: [captchaLimiter],
+    execution: async (req: Request, res: Response) => {
+        const { challengeId, answer } = req.body;
+        if (!challengeId || answer === undefined) return res.status(400).json({ status: false, msg: 'Faltan parámetros' });
+        
+        const captcha = await HubCaptcha.findOne({ challengeId, used: false, expiresAt: { $gt: new Date() } });
+        if (!captcha) return res.status(400).json({ status: false, msg: 'Captcha inválido o expirado' });
+        
+        if (captcha.answer !== String(answer).toLowerCase().trim()) {
+            captcha.used = true; await captcha.save();
+            return res.status(400).json({ status: false, msg: 'Respuesta incorrecta' });
+        }
+
+        // Mark captcha used and return a token (challengeId) for frontend flows
+        captcha.used = true;
+        await captcha.save();
+
+        return res.json({ status: true, msg: 'Captcha válido', data: { token: captcha.challengeId } });
+    }
+};
