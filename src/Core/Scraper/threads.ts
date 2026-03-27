@@ -38,7 +38,7 @@ interface Failure {
 
 type ParseFunction = (str: string | null | undefined) => string;
 
-export default class Threads {
+export default new class Threads {
     public baseUrl: string;
     public jar: CookieJar;
     public client: AxiosInstance;

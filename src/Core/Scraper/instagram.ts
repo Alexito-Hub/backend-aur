@@ -19,7 +19,7 @@ interface Result {
     media: Media[];
 }
 
-export default class Instagram {
+export default new class Instagram {
     public baseUrl: string;
     public apiUrl: string;
     public jar: CookieJar;

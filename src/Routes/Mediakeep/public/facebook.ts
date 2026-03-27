@@ -1,15 +1,15 @@
 import type { Request, Response } from 'express';
-import Twitter from '../../../Core/Scraper/twitter';
+import Facebook from '../../../Core/Scraper/facebook';
 import Middlewares from '../middlewares';
 
 export default {
-    name: 'Download Twitter Media',
-    path: '/download/twitter',
+    name: 'Download Facebook Media',
+    path: '/download/facebook',
     method: 'post',
     category: 'download',
     example: {
-        url: '/download/twitter',
-        body: { url: 'https://x.com/user/status/123456789' }
+        url: '/download/facebook',
+        body: { url: 'https://www.facebook.com/user/posts/123' }
     },
     parameter: ['url'],
     premium: false,
@@ -22,14 +22,14 @@ export default {
         }
         next();
     },
-    validator: Middlewares.guest('twitter'),
+    validator: Middlewares.guest('facebook'),
     execution: async (req: Request, res: Response) => {
-        const { url } = req.body;
         try {
-            const scraper = new Twitter();
-            const result = await scraper.download(url);
+            const { url } = req.body;
+            const results = await Facebook.download(url);
 
-            if (!result || !result.media || result.media.length === 0) {
+
+            if (!results) {
                 return res.status(404).json({
                     status: false,
                     msg: 'No se encontró contenido para descargar.'
@@ -38,15 +38,12 @@ export default {
 
             return res.status(200).json({
                 status: true,
-                data: result
+                data: results
             });
 
-        } catch (e: any) {
-            console.error('Error en descarga de Twitter:', e);
-            return res.status(500).json({
-                status: false,
-                msg: e.message || 'Error interno del servidor.'
-            });
+        } catch (e) {
+            console.error('Error en descarga de Facebook:', e);
+            return res.status(500).json({ status: false, msg: 'Error interno o enlace inválido.' });
         }
     }
 };

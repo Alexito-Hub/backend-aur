@@ -3,7 +3,10 @@ import { HubUser } from '../../../Modules/Hub/Models';
 import { sendWelcomeEmail } from '../../../Modules/Hub/Email';
 
 export default {
-    name: 'Hub Verify Email', path: '/api/hub/auth/verify-email', method: 'get', category: 'hub',
+    name: 'Hub Verify Email',
+    path: '/hub/auth/verify-email',
+    method: 'get',
+    category: 'hub',
     execution: async (req: Request, res: Response) => {
         const { token } = req.query as { token: string };
         if (!token) return res.status(400).json({ status: false, msg: 'Token requerido' });

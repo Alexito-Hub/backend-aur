@@ -3,7 +3,10 @@ import { HubUser } from '../../../Modules/Hub/Models';
 import { hubAuthMiddleware } from '../../../Modules/Hub/Middleware';
 
 export default {
-    name: 'Hub User Profile', path: '/api/hub/user/profile', method: 'put', category: 'hub',
+    name: 'Hub User Profile',
+    path: '/hub/user/profile',
+    method: 'put',
+    category: 'hub',
     requires: hubAuthMiddleware,
     execution: async (req: Request, res: Response) => {
         const user = (req as any).hubUser;

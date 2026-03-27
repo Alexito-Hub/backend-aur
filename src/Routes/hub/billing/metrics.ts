@@ -3,7 +3,10 @@ import { HubRequestLog } from '../../../Modules/Hub/Models';
 import { hubAuthMiddleware } from '../../../Modules/Hub/Middleware';
 
 export default {
-    name: 'Hub User Metrics', path: '/api/hub/user/metrics', method: 'get', category: 'hub',
+    name: 'Hub User Metrics',
+    path: '/hub/user/metrics',
+    method: 'get',
+    category: 'hub',
     requires: hubAuthMiddleware,
     execution: async (req: Request, res: Response) => {
         const user = (req as any).hubUser;

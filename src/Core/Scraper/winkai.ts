@@ -32,7 +32,7 @@ function gnumLoad(): string {
     return g;
 }
 
-export class WinkClient {
+export default new class WinkClient {
     private readonly http: AxiosInstance;
     private readonly gnum: string;
     private readonly country: string;

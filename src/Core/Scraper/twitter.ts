@@ -16,7 +16,7 @@ interface MediaData {
     [key: string]: any;
 }
 
-export default class Twitter {
+export default new class Twitter {
     public snap: AxiosInstance;
     public jar: CookieJar;
 

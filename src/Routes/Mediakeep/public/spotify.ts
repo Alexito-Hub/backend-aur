@@ -1,15 +1,15 @@
 import type { Request, Response } from 'express';
-import Instagram from '../../../Core/Scraper/instagram';
+import Spotify from '../../../Core/Scraper/spotify';
 import Middlewares from '../middlewares';
 
 export default {
-    name: 'Download Instagram Media',
-    path: '/download/instagram',
+    name: 'Download Spotify Track',
+    path: '/download/spotify',
     method: 'post',
     category: 'download',
     example: {
-        url: '/download/instagram',
-        body: { url: 'https://www.instagram.com/p/DHe7V9KBxYO/' }
+        url: '/download/spotify',
+        body: { url: 'https://open.spotify.com/track/123' }
     },
     parameter: ['url'],
     premium: false,
@@ -22,14 +22,14 @@ export default {
         }
         next();
     },
-    validator: Middlewares.guest('instagram'),
+    validator: Middlewares.guest('spotify'),
     execution: async (req: Request, res: Response) => {
-        const { url } = req.body;
         try {
-            const scraper = new Instagram();
-            const result = await scraper.download(url);
+            const { url } = req.body;
+            const results = await Spotify.download(url);
 
-            if (!result || !result.media || result.media.length === 0) {
+
+            if (!results) {
                 return res.status(404).json({
                     status: false,
                     msg: 'No se encontró contenido para descargar.'
@@ -38,11 +38,11 @@ export default {
 
             return res.status(200).json({
                 status: true,
-                data: result
+                data: results
             });
 
         } catch (e: any) {
-            console.error('Error en descarga de Instagram:', e);
+            console.error('Error en descarga de Spotify:', e);
             return res.status(500).json({
                 status: false,
                 msg: e.message || 'Error interno del servidor.'

@@ -2,7 +2,10 @@ import { Request, Response } from 'express';
 import { HubTransaction, HubUser } from '../../../Modules/Hub/Models';
 
 export default {
-    name: 'Hub Cryptomus Webhook', path: '/api/hub/payments/cryptomus/webhook', method: 'post', category: 'hub',
+    name: 'Hub Cryptomus Webhook',
+    path: '/hub/payments/cryptomus/webhook',
+    method: 'post',
+    category: 'hub',
     execution: async (req: Request, res: Response) => {
         const { order_id, status, sign } = req.body;
         const apiKey = process.env.CRYPTOMUS_API_KEY || '';

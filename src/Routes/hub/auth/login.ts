@@ -9,7 +9,10 @@ const JWT_EXPIRES = '15m';
 const REFRESH_EXPIRES = '7d';
 
 export default {
-    name: 'Hub Login', path: '/api/hub/auth/login', method: 'post', category: 'hub',
+    name: 'Hub Login',
+    path: '/hub/auth/login',
+    method: 'post',
+    category: 'hub',
     validator: [authLimiter],
     execution: async (req: Request, res: Response) => {
         const { email, password, captchaToken } = req.body;

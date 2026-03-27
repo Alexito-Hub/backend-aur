@@ -2,7 +2,10 @@ import { Request, Response } from 'express';
 import { hubAuthMiddleware } from '../../../Modules/Hub/Middleware';
 
 export default {
-    name: 'Hub Me', path: '/api/hub/auth/me', method: 'get', category: 'hub',
+    name: 'Hub Me',
+    path: '/hub/auth/me',
+    method: 'get',
+    category: 'hub',
     requires: hubAuthMiddleware,
     execution: async (req: Request, res: Response) => {
         const user = (req as any).hubUser;

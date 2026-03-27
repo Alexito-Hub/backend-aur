@@ -9,6 +9,7 @@ export default {
     path: '/api/resultados',
     method: 'get',
     category: 'Elecciones',
+    enable: false,
     validator: [Token.token, Bot.detect],
     execution: async (req: Request, res: Response) => {
         try {

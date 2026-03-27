@@ -7,7 +7,10 @@ import { hubAuthMiddleware, sandboxLimiter } from '../../../Modules/Hub/Middlewa
 const BACKEND_BASE = process.env.INTERNAL_API_BASE || 'http://localhost:3000';
 
 export default {
-    name: 'Hub Sandbox Execute', path: '/api/hub/sandbox/execute', method: 'post', category: 'hub',
+    name: 'Hub Sandbox Execute',
+    path: '/hub/sandbox/execute',
+    method: 'post',
+    category: 'hub',
     requires: hubAuthMiddleware, validator: [sandboxLimiter],
     execution: async (req: Request, res: Response) => {
         const user = (req as any).hubUser;

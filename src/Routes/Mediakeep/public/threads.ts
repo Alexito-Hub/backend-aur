@@ -1,15 +1,15 @@
 import type { Request, Response } from 'express';
-import Facebook from '../../../Core/Scraper/facebook';
+import Threads from '../../../Core/Scraper/threads';
 import Middlewares from '../middlewares';
 
 export default {
-    name: 'Download Facebook Media',
-    path: '/download/facebook',
+    name: 'Download Threads Media',
+    path: '/download/threads',
     method: 'post',
     category: 'download',
     example: {
-        url: '/download/facebook',
-        body: { url: 'https://www.facebook.com/user/posts/123' }
+        url: '/download/threads',
+        body: { url: 'https://www.threads.net/@user/post/123' }
     },
     parameter: ['url'],
     premium: false,
@@ -22,29 +22,28 @@ export default {
         }
         next();
     },
-    validator: Middlewares.guest('facebook'),
+    validator: Middlewares.guest('threads'),
     execution: async (req: Request, res: Response) => {
         try {
             const { url } = req.body;
-            const scraper = new Facebook();
-            const results = await scraper.download(url);
+            const results = await Threads.download(url);
 
 
-            if (!results) {
+            if (!results.status) {
                 return res.status(404).json({
                     status: false,
                     msg: 'No se encontró contenido para descargar.'
                 });
             }
 
-            return res.status(200).json({
-                status: true,
-                data: results
-            });
+            return res.status(200).json(results);
 
-        } catch (e) {
-            console.error('Error en descarga de Facebook:', e);
-            return res.status(500).json({ status: false, msg: 'Error interno o enlace inválido.' });
+        } catch (e: any) {
+            console.error('Error en descarga de Threads:', e);
+            return res.status(500).json({
+                status: false,
+                msg: e.message || 'Error interno del servidor.'
+            });
         }
     }
 };

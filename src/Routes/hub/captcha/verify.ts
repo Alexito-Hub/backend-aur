@@ -3,7 +3,10 @@ import { HubCaptcha } from '../../../Modules/Hub/Models';
 import { captchaLimiter } from '../../../Modules/Hub/Middleware';
 
 export default {
-    name: 'Hub Captcha Verify', path: '/api/hub/captcha/verify', method: 'post', category: 'hub',
+    name: 'Hub Captcha Verify',
+    path: '/hub/captcha/verify',
+    method: 'post',
+    category: 'hub',
     validator: [captchaLimiter],
     execution: async (req: Request, res: Response) => {
         const { challengeId, answer } = req.body;

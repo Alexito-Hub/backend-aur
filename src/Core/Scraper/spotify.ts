@@ -28,7 +28,7 @@ interface ErrorResponse {
     error: any;
 }
 
-export default class Spotify {
+export default new class Spotify {
     public baseUrl: string;
     public jar: CookieJar;
     public client: AxiosInstance;

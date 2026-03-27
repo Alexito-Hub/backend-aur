@@ -12,7 +12,10 @@ const PLANS = [
 ];
 
 export default {
-    name: 'Hub Billing Purchase', path: '/api/hub/billing/purchase', method: 'post', category: 'hub',
+    name: 'Hub Billing Purchase',
+    path: '/hub/billing/purchase',
+    method: 'post',
+    category: 'hub',
     requires: hubAuthMiddleware,
     execution: async (req: Request, res: Response) => {
         const user = (req as any).hubUser;

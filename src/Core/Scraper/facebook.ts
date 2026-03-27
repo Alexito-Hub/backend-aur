@@ -6,7 +6,7 @@ interface Image extends Base { type: "image"; download: string }
 interface Album extends Base { type: "album"; images: string[] }
 export type FBResult = Video | Image | Album;
 
-export default class Facebook {
+export default new class Facebook {
     private readonly headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",

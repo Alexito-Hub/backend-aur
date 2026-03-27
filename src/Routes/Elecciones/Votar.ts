@@ -13,6 +13,7 @@ export default {
     method: 'post',
     category: 'Elecciones',
     parameter: ['token', 'candidato_id', 'fingerprint_cliente', 'nombre'],
+    enable: false,
     validator: [Token.token, Bot.detect],
     execution: async (req: Request, res: Response) => {
         try {

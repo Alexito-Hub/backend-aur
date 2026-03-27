@@ -10,8 +10,7 @@ export default {
             if (cached) return cached;
 
             try {
-                const scraper = new YouTube();
-                const results = await scraper.search(query);
+                const results = await YouTube.search(query);
 
                 ctx.cache.set(key, results, 300);
                 return results;

@@ -3,7 +3,10 @@ import { HubSnippet } from '../../../Modules/Hub/Models';
 import { hubAuthMiddleware } from '../../../Modules/Hub/Middleware';
 
 export default {
-    name: 'Hub Delete Snippet', path: '/api/hub/snippets/:id', method: 'delete', category: 'hub',
+    name: 'Hub Delete Snippet',
+    path: '/hub/snippets/:id',
+    method: 'delete',
+    category: 'hub',
     requires: hubAuthMiddleware,
     execution: async (req: Request, res: Response) => {
         const user = (req as any).hubUser;

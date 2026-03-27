@@ -3,7 +3,10 @@ import bcrypt from 'bcryptjs';
 import { HubSnippet } from '../../../Modules/Hub/Models';
 
 export default {
-    name: 'Hub View Snippet', path: '/api/hub/snippets/:id/view', method: 'post', category: 'hub',
+    name: 'Hub View Snippet',
+    path: '/hub/snippets/:id/view',
+    method: 'post',
+    category: 'hub',
     execution: async (req: Request, res: Response) => {
         const { id } = req.params; const { password } = req.body || {};
         const snippet = await HubSnippet.findOne({ shortId: id });

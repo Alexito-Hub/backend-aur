@@ -45,7 +45,7 @@ interface Result {
     audios: AudioResource[];
 }
 
-export default class Bilibili {
+export default new class Bilibili {
     public baseUrl: string;
     public jar: CookieJar;
     public client: AxiosInstance;

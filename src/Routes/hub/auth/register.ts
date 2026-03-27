@@ -6,7 +6,10 @@ import { authLimiter } from '../../../Modules/Hub/Middleware';
 import crypto from 'crypto';
 
 export default {
-    name: 'Hub Register', path: '/api/hub/auth/register', method: 'post', category: 'hub',
+    name: 'Hub Register',
+    path: '/hub/auth/register',
+    method: 'post',
+    category: 'hub',
     validator: [authLimiter],
     execution: async (req: Request, res: Response) => {
         const { email, password, displayName, captchaToken } = req.body;

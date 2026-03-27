@@ -29,8 +29,6 @@ export default {
         const mediaType = String(req.body?.mediaType || req.query?.mediaType || 'audio').toLowerCase();
         const title = req.body?.title || req.query?.title;
 
-        const scraper = new YouTube();
-
         const sendMediaResponse = (versionLabel: string, bufferResult: { buffer: Buffer; mimetype: string; fileName: string; }) => {
             res.status(200)
                 .type(bufferResult.mimetype)
@@ -50,17 +48,17 @@ export default {
 
         try {
             if (version === 'v1') {
-                const result = await scraper.download_v1(url);
+                const result = await YouTube.download_v1(url);
                 return sendV1Response(result);
             }
 
             if (version === 'v2') {
                 const isVideo = mediaType === 'video';
-                const bufferResult = await scraper.download_v2(url, { video: isVideo, title });
+                const bufferResult = await YouTube.download_v2(url, { video: isVideo, title });
                 return sendMediaResponse('v2', bufferResult);
             }
 
-            const result = await scraper.download_v1(url);
+            const result = await YouTube.download_v1(url);
             return sendV1Response(result);
 
         } catch (e: any) {

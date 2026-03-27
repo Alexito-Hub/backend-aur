@@ -9,7 +9,7 @@ export default {
     method: 'post',
     category: 'Elecciones',
     parameter: ['token'],
-    premium: true,
+    enable: false,
     validator: Token.token,
     execution: async (req: Request, res: Response) => {
         try {

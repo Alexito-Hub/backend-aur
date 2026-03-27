@@ -26,8 +26,7 @@ export default {
     execution: async (req: Request, res: Response) => {
         const { url } = req.body;
         try {
-            const scraper = new Bilibili();
-            const result = await scraper.download(url);
+            const result = await Bilibili.download(url);
 
             if (!result) {
                 return res.status(404).json({

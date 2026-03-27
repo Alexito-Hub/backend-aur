@@ -3,7 +3,10 @@ import { HubSnippet } from '../../../Modules/Hub/Models';
 import { hubAuthMiddleware } from '../../../Modules/Hub/Middleware';
 
 export default {
-    name: 'Hub List Snippets', path: '/api/hub/snippets', method: 'get', category: 'hub',
+    name: 'Hub List Snippets',
+    path: '/hub/snippets',
+    method: 'get',
+    category: 'hub',
     requires: hubAuthMiddleware,
     execution: async (req: Request, res: Response) => {
         const user = (req as any).hubUser;

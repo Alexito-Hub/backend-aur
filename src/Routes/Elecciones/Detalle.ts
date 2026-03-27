@@ -7,6 +7,7 @@ export default {
     path: '/api/candidato/:id',
     method: 'get',
     category: 'Elecciones',
+    enable: false,
     validator: Token.token,
     execution: async (req: Request, res: Response) => {
         try {

@@ -5,7 +5,10 @@ import { captchaLimiter } from '../../../Modules/Hub/Middleware';
 import { CaptchaGen } from '../../../Utils/CaptchaGen';
 
 export default {
-    name: 'Hub Captcha Challenge', path: '/api/hub/captcha/challenge', method: 'post', category: 'hub',
+    name: 'Hub Captcha Challenge',
+    path: '/hub/captcha/challenge',
+    method: 'post',
+    category: 'hub',
     validator: [captchaLimiter],
     execution: async (req: Request, res: Response) => {
         const { svg, text } = CaptchaGen.generate();

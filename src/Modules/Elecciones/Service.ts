@@ -1,6 +1,6 @@
 import { Votante, VotoTotal, SecurityLog } from './Model';
 import { CANDS, CONF } from './Config';
-import { JNE } from '../../Core/Scraper/JNE';
+import JNE from '../../Core/Scraper/JNE';
 import mongoose from 'mongoose';
 import crypto from 'crypto';
 
@@ -71,14 +71,14 @@ export default new class Service {
             try { [jne, pls] = await Promise.all([JNE.list(), JNE.plans()]); } catch (e) { }
 
             const out = jne.filter(j => j.idCargo === 1).map(j => {
-                const c = CANDS.find(x => x.pid === j.idOrganizacionPolitica);
+                const c = CANDS.find((x: any) => x.pid === j.idOrganizacionPolitica);
                 const id = c?.id || `jne_${j.idOrganizacionPolitica}`;
                 const jid = `jne_${j.idOrganizacionPolitica}`;
 
                 const v = (map[id] || 0) + (id !== jid ? (map[jid] || 0) : 0);
 
                 const n = `${j.strNombres} ${j.strApellidoPaterno} ${j.strApellidoMaterno}`;
-                const p = pls.find(x => x.idOrganizacionPolitica === j.idOrganizacionPolitica);
+                const p = pls.find((x: any) => x.idOrganizacionPolitica === j.idOrganizacionPolitica);
 
                 return {
                     id,
@@ -106,11 +106,11 @@ export default new class Service {
     }
 
     public async det(id: string) {
-        const pid = id.startsWith('jne_') ? parseInt(id.replace('jne_', '')) : CANDS.find(c => c.id === id)?.pid;
+        const pid = id.startsWith('jne_') ? parseInt(id.replace('jne_', '')) : CANDS.find((c: any) => c.id === id)?.pid;
         if (!pid) return { status: false };
         try {
             const pls = await JNE.plans();
-            const p = pls.find(x => x.idOrganizacionPolitica === pid);
+            const p = pls.find((x: any) => x.idOrganizacionPolitica === pid);
             if (!p) return { status: false };
             const d = await JNE.detail(p.idPlanGobierno);
             const r: string[] = [];

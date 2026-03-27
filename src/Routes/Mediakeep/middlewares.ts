@@ -26,18 +26,14 @@ export default new class Middlewares {
 
     public guest = (name: string) => {
         return async (req: Request, res: Response, next: NextFunction) => {
-            // 0) Internal status-check bypass — skip all middleware
             const statusSecret = process.env.STATUS_CHECK_SECRET || 'internal';
             if (req.headers['x-status-check'] === statusSecret) {
                 return next();
             }
 
-            // 1) Always validate the app token first
             const tokenPassed = await this.run([Token.token], req, res, next);
             if (!tokenPassed) return;
 
-            // 2) Check cache BEFORE incrementing the usage counter so cached
-            //    responses don't consume quota
             const url = req.body?.url || req.query?.url;
             if (url && typeof url === 'string') {
                 const key = `${name}_${url}`;
@@ -47,9 +43,6 @@ export default new class Middlewares {
                 }
             }
 
-            // 3) No cache hit -> proceed without limits
-
-            // 4) Wrap res.json to populate the cache on success
             if (url && typeof url === 'string') {
                 const key = `${name}_${url}`;
                 const origin = res.json.bind(res);

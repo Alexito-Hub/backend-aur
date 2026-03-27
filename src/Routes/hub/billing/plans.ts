@@ -9,7 +9,10 @@ const PLANS = [
     { id: 'weekly', name: 'Semanal ilimitado', credits: -1, price: 20.00, currency: 'USD', badge: 'Popular' },
 ];
 export default {
-    name: 'Hub Billing Plans', path: '/api/hub/billing/plans', method: 'get', category: 'hub',
+    name: 'Hub Billing Plans',
+    path: '/hub/billing/plans',
+    method: 'get',
+    category: 'hub',
     requires: hubAuthMiddleware,
     execution: async (req: Request, res: Response) => res.json({ status: true, data: PLANS })
 };

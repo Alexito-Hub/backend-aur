@@ -1,15 +1,15 @@
 import type { Request, Response } from 'express';
-import Threads from '../../../Core/Scraper/threads';
+import Twitter from '../../../Core/Scraper/twitter';
 import Middlewares from '../middlewares';
 
 export default {
-    name: 'Download Threads Media',
-    path: '/download/threads',
+    name: 'Download Twitter Media',
+    path: '/download/twitter',
     method: 'post',
     category: 'download',
     example: {
-        url: '/download/threads',
-        body: { url: 'https://www.threads.net/@user/post/123' }
+        url: '/download/twitter',
+        body: { url: 'https://x.com/user/status/123456789' }
     },
     parameter: ['url'],
     premium: false,
@@ -22,25 +22,26 @@ export default {
         }
         next();
     },
-    validator: Middlewares.guest('threads'),
+    validator: Middlewares.guest('twitter'),
     execution: async (req: Request, res: Response) => {
+        const { url } = req.body;
         try {
-            const { url } = req.body;
-            const scraper = new Threads();
-            const results = await scraper.download(url);
+            const result = await Twitter.download(url);
 
-
-            if (!results.status) {
+            if (!result || !result.media || result.media.length === 0) {
                 return res.status(404).json({
                     status: false,
                     msg: 'No se encontró contenido para descargar.'
                 });
             }
 
-            return res.status(200).json(results);
+            return res.status(200).json({
+                status: true,
+                data: result
+            });
 
         } catch (e: any) {
-            console.error('Error en descarga de Threads:', e);
+            console.error('Error en descarga de Twitter:', e);
             return res.status(500).json({
                 status: false,
                 msg: e.message || 'Error interno del servidor.'
