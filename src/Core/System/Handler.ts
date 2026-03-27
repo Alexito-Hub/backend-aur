@@ -64,12 +64,13 @@ export default new class Handler {
                     const check = Config.status[reqFn](req, route.parameter);
                     if (!check.status) return res.json(check);
                     const reqType = route.method === 'get' ? 'query' : 'body';
-                    if ('url' in req[reqType]) {
-                        const isUrl = Config.status.url(req[reqType].url);
-                        if (!isUrl.status)
-                            return res.json(isUrl);
-                        next();
-                    } else next();
+                    const source = req[reqType] ?? {};
+                    const urlValue = (typeof source === 'object' && source !== null) ? (source as any).url : undefined;
+                    if (typeof urlValue === 'string') {
+                        const isUrl = Config.status.url(urlValue);
+                        if (!isUrl.status) return res.json(isUrl);
+                    }
+                    next();
                 } : route.requires);
 
                 const rawValidator = route.validator

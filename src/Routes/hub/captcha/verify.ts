@@ -17,10 +17,8 @@ export default {
             return res.status(400).json({ status: false, msg: 'Respuesta incorrecta' });
         }
 
-        // Mark captcha used and return a token (challengeId) for frontend flows
-        captcha.used = true;
-        await captcha.save();
-
+        // Keep captcha unused until it's consumed by login/register.
+        // This allows the frontend to verify it first and then submit the token.
         return res.json({ status: true, msg: 'Captcha válido', data: { token: captcha.challengeId } });
     }
 };
