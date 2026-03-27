@@ -25,7 +25,7 @@ export default {
     validator: Middlewares.guest('spotify'),
     execution: async (req: Request, res: Response) => {
         try {
-            const { url } = req.body;
+            const url = req.body?.url || req.query?.url;
             const results = await Spotify.download(url);
 
 

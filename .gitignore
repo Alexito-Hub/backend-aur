@@ -17,3 +17,4 @@ package-lock.json
 
 # Firebase Admin SDK keys - keep these out of version control
 firebase-adminsdk*.json
+.wink_gnum

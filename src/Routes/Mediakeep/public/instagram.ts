@@ -24,7 +24,7 @@ export default {
     },
     validator: Middlewares.guest('instagram'),
     execution: async (req: Request, res: Response) => {
-        const { url } = req.body;
+        const url = req.body?.url || req.query?.url;
         try {
             const result = await Instagram.download(url);
 

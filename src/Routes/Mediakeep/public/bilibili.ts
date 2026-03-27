@@ -24,7 +24,7 @@ export default {
     },
     validator: Middlewares.guest('bilibili'),
     execution: async (req: Request, res: Response) => {
-        const { url } = req.body;
+        const url = req.body?.url || req.query?.url;
         try {
             const result = await Bilibili.download(url);
 

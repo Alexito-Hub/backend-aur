@@ -21,7 +21,7 @@ export default new class Handler {
     public async routes(): Promise<Router | undefined> {
         try {
             await Loader.router(path.join(__dirname, '../../Routes'));
-            const routers = Object.values(Loader.plugins);
+            const routers = Loader.plugins;
             routers.forEach((v: any) => {
                 const route = v
 
@@ -29,17 +29,14 @@ export default new class Handler {
                     return
                 }
 
-                if (!Flags.isEnabled(route.name, route.enabled)) {
-                    logger.debug({ route: route.name }, 'Route disabled by feature flag — skipping');
-                    return;
-                }
+                const method = route.method.toLowerCase();
 
                 if (route.name) Config.routes.push({
                     category: Func.ucword(route.category),
                     base_code: Buffer.from(route.category.toLowerCase()).toString('base64'),
                     name: route.name,
                     path: route.example ? `${route.path}?${new URLSearchParams(Object.entries(route.example)).toString()}` : route.path,
-                    method: route.method.toUpperCase(),
+                    method: method.toUpperCase(),
                     raw: {
                         path: route.path,
                         example: route.example || null
@@ -60,10 +57,10 @@ export default new class Handler {
                 })
 
                 const requires = (!route.requires ? (req: Request, res: Response, next: NextFunction) => {
-                    const reqFn = route.method === 'get' ? 'reqGet' : 'reqPost';
+                    const reqFn = method === 'get' ? 'reqGet' : 'reqPost';
                     const check = Config.status[reqFn](req, route.parameter);
                     if (!check.status) return res.json(check);
-                    const reqType = route.method === 'get' ? 'query' : 'body';
+                    const reqType = method === 'get' ? 'query' : 'body';
                     const source = req[reqType] ?? {};
                     const urlValue = (typeof source === 'object' && source !== null) ? (source as any).url : undefined;
                     if (typeof urlValue === 'string') {
@@ -79,8 +76,8 @@ export default new class Handler {
                 const validators: Array<(req: Request, res: Response, next: NextFunction) => void> =
                     Array.isArray(rawValidator) ? rawValidator : [rawValidator];
 
-                if (typeof (this.router as any)[route.method] === 'function') {
-                    (this.router as any)[route.method.toLowerCase()](route.path, error, requires, ...validators, route.execution);
+                if (typeof (this.router as any)[method] === 'function') {
+                    (this.router as any)[method](route.path, error, requires, ...validators, route.execution);
                 }
             })
             return this.router
@@ -94,7 +91,7 @@ export default new class Handler {
     public async sockets(io: Server): Promise<void> {
         try {
             await Loader.socket(path.join(__dirname, '../../Socket'));
-            const sockets = Object.values(Loader.sockets);
+            const sockets = Loader.sockets;
 
             sockets.forEach((data: any) => {
                     if (typeof data.init === 'function') {
@@ -136,7 +133,7 @@ export default new class Handler {
     public async websockets(wss: WebSocketServer): Promise<void> {
         try {
             await Loader.websocketPure(path.join(__dirname, '../../WebSocket/Handlers'));
-            const modules = Object.values(Loader.websockets);
+            const modules = Loader.websockets;
             WSDispatcher.init(wss, modules);
             logger.info('Pure WebSockets initialized successfully');
         } catch (err) {

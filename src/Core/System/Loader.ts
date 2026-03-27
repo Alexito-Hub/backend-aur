@@ -8,63 +8,57 @@ const stat = promisify(fs.stat);
 const resolve = path.resolve;
 
 export default new class Loader {
-    public plugins: Record<string, any>  = {};
-    public sockets: Record<string, any>  = {};
-    public websockets: Record<string, any> = {};
+    public plugins: any[] = [];
+    public sockets: any[] = [];
+    public websockets: any[] = [];
     public resolvers: any[] = [];
 
     public async router(dir: string): Promise<void> {
+        this.plugins = [];
         const files = await this.scandir(dir);
-        const entries: [string, any][] = [];
         for (const file of files) {
             if (file.endsWith('.ts') || file.endsWith('.js')) {
-                const name = path.basename(file).replace(/\.(ts|js)$/, '');
                 try {
                     const mod = await import(file);
-                    entries.push([name, mod.default || mod]);
-                    logger.info({ file, name }, 'Route loaded successfully');
+                    this.plugins.push(mod.default || mod);
+                    logger.info({ file }, 'Route loaded successfully');
                 } catch (err: any) {
                     logger.error({ file, error: err.message }, 'Error importing router');
                 }
             }
         }
-        this.plugins = Object.fromEntries(entries);
     }
 
     public async socket(dir: string): Promise<void> {
+        this.sockets = [];
         const files = await this.scandir(dir);
-        const entries: [string, any][] = [];
         for (const file of files) {
             if (file.endsWith('.ts') || file.endsWith('.js')) {
-                const name = path.basename(file).replace(/\.(ts|js)$/, '');
                 try {
                     const mod = await import(file);
-                    entries.push([name, mod.default || mod]);
-                    logger.info({ file, name }, 'Socket loaded successfully');
+                    this.sockets.push(mod.default || mod);
+                    logger.info({ file }, 'Socket loaded successfully');
                 } catch (err: any) {
                     logger.error({ file, error: err.message }, 'Error importing socket');
                 }
             }
         }
-        this.sockets = Object.fromEntries(entries);
     }
 
     public async websocketPure(dir: string): Promise<void> {
+        this.websockets = [];
         const files = await this.scandir(dir);
-        const entries: [string, any][] = [];
         for (const file of files) {
             if (file.endsWith('.ts') || file.endsWith('.js')) {
-                const name = path.basename(file).replace(/\.(ts|js)$/, '');
                 try {
                     const mod = await import(file);
-                    entries.push([name, mod.default || mod]);
-                    logger.info({ file, name }, 'Pure WebSocket loaded successfully');
+                    this.websockets.push(mod.default || mod);
+                    logger.info({ file }, 'Pure WebSocket loaded successfully');
                 } catch (err: any) {
                     logger.error({ file, error: err.message }, 'Error importing pure websocket');
                 }
             }
         }
-        this.websockets = Object.fromEntries(entries);
     }
 
     /**

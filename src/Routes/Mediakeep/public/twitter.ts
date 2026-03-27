@@ -24,7 +24,7 @@ export default {
     },
     validator: Middlewares.guest('twitter'),
     execution: async (req: Request, res: Response) => {
-        const { url } = req.body;
+        const url = req.body?.url || req.query?.url;
         try {
             const result = await Twitter.download(url);
 

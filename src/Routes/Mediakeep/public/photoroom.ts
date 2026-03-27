@@ -24,7 +24,8 @@ export default {
     },
     validator: Middlewares.guest('photoroom'),
     execution: async (req: Request, res: Response) => {
-        const { image_path, token } = req.body;
+        const image_path = req.body?.image_path || req.query?.image_path;
+        const token = req.body?.token || req.query?.token;
 
         try {
             const bufferResult = await Photoroom.removebg(image_path, token);

@@ -157,7 +157,7 @@ export interface YtDlpOpts {
     cookiesPath?: string;
 }
 
-export default new class YouTube {
+export default class YouTube {
     public baseUrl = "https://app.ytdown.to";
     public jar = new CookieJar();
     public client = wrapper(axios.create({
