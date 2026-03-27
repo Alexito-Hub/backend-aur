@@ -30,7 +30,7 @@ export default new class Handler {
                 }
 
                 if (!Flags.isEnabled(route.name, route.enabled)) {
-                    logger.info({ route: route.name }, 'Route disabled by feature flag — skipping');
+                    logger.debug({ route: route.name }, 'Route disabled by feature flag — skipping');
                     return;
                 }
 
@@ -97,16 +97,16 @@ export default new class Handler {
             const sockets = Object.values(Loader.sockets);
 
             sockets.forEach((data: any) => {
-                if (typeof data.init === 'function') {
-                    data.init(io);
-                    logger.info({ socket: data.name }, 'Socket io injected');
-                }
+                    if (typeof data.init === 'function') {
+                        data.init(io);
+                        logger.debug({ socket: data.name }, 'Socket io injected');
+                    }
             });
 
             io.on('connection', (socket) => {
                 sockets.forEach((data: any) => {
                     if (!Flags.isEnabled(data.name, data.enabled)) {
-                        logger.info({ socket: data.name }, 'Socket disabled by feature flag — skipping');
+                        logger.debug({ socket: data.name }, 'Socket disabled by feature flag — skipping');
                         return;
                     }
 
@@ -191,7 +191,7 @@ export default new class Handler {
                 }
             });
 
-            logger.info('GraphQL context: Firestore removed by Auralix Hub architecture');
+            logger.debug('GraphQL context: Firestore removed by Auralix Hub architecture');
 
             const server = new ApolloServer({
                 typeDefs,

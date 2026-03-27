@@ -10,7 +10,9 @@ export interface ILogger {
     error(obj: unknown, msg?: string): void
 }
 
+const Level = process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'warn' : 'debug');
+
 export default pino({
-    level: 'info',
-    timestamp: () => `,"time":"${new Date().toJSON()}"`
+    level: Level,
+    timestamp: () => `,"time":"${new Date().toISOString()}"`
 });
