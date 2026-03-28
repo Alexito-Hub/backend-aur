@@ -22,7 +22,7 @@ export default {
         }
         next();
     },
-    // validator: Middlewares.guest('facebook'),
+    validator: Middlewares.guest('facebook'),
     execution: async (req: Request, res: Response) => {
         try {
             const url = req.body?.url || req.query?.url;

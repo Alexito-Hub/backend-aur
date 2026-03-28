@@ -164,6 +164,12 @@ const run = async () => {
     await Create.graphql(app, sqlite);
 
     app.use('/', (await Create.routes()) ?? express.Router())
+        .use((req: express.Request, res: express.Response) => {
+            res.status(404).json({
+                status: false,
+                msg: `Ruta no encontrada: ${req.method} ${req.url}`
+            });
+        })
         .use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
             console.error('Error:', err);
             res.status(err.status || 500).json({

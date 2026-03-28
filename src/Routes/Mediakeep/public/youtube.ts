@@ -22,14 +22,13 @@ export default {
         }
         next();
     },
-    // validator: Middlewares.guest('youtube'),
+    validator: Middlewares.guest('youtube'),
     execution: async (req: Request, res: Response) => {
         const url = req.body?.url || req.query?.url;
         const version = String(req.body?.version || req.query?.version || 'v1').toLowerCase();
         const mediaType = String(req.body?.mediaType || req.query?.mediaType || 'audio').toLowerCase();
         const title = req.body?.title || req.query?.title;
 
-        const yt = new YouTube();
         const sendMediaResponse = (versionLabel: string, bufferResult: { buffer: Buffer; mimetype: string; fileName: string; }) => {
             res.status(200)
                 .type(bufferResult.mimetype)
@@ -49,17 +48,17 @@ export default {
 
         try {
             if (version === 'v1') {
-                const result = await yt.download_v1(url).catch((e: any) => console.error('Error en descarga v1 de YouTube:', e))
+                const result = await YouTube.download_v1(url).catch((e: any) => console.error('Error en descarga v1 de YouTube:', e))
                 return sendV1Response(result);
             }
 
             if (version === 'v2') {
                 const isVideo = mediaType === 'video';
-                const bufferResult = await yt.download_v2(url, { video: isVideo, title });
+                const bufferResult = await YouTube.download_v2(url, { video: isVideo, title });
                 return sendMediaResponse('v2', bufferResult);
             }
 
-            const result = await yt.download_v1(url);
+            const result = await YouTube.download_v1(url);
             return sendV1Response(result);
 
         } catch (e: any) {
