@@ -20,7 +20,11 @@ export default new class Loader {
             if (file.endsWith('.ts') || file.endsWith('.js')) {
                 try {
                     const mod = await import(file);
-                    this.plugins.push(mod.default || mod);
+                    const plugin = mod.default || mod;
+                    if (plugin && typeof plugin === 'object') {
+                        (plugin as any).__filePath = file;
+                    }
+                    this.plugins.push(plugin);
                     logger.info({ file }, 'Route loaded successfully');
                 } catch (err: any) {
                     logger.error({ file, error: err.message }, 'Error importing router');

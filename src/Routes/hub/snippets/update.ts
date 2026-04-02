@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { HubSnippet } from '../../../Modules/Hub/Models';
 import {
@@ -75,20 +74,6 @@ function normalizeLanguage(value: string, fallback: string): string {
     return normalized;
 }
 
-function toBoolean(value: unknown, fallback: boolean): boolean {
-    if (typeof value === 'boolean') return value;
-    if (typeof value === 'string') {
-        const normalized = value.trim().toLowerCase();
-        if (normalized === 'true' || normalized === '1' || normalized === 'yes') return true;
-        if (normalized === 'false' || normalized === '0' || normalized === 'no') return false;
-    }
-    if (typeof value === 'number') {
-        if (value === 1) return true;
-        if (value === 0) return false;
-    }
-    return fallback;
-}
-
 function inferLanguageFromFilename(filename: string): string {
     const dot = filename.lastIndexOf('.');
     if (dot === -1) return 'plaintext';
@@ -96,15 +81,7 @@ function inferLanguageFromFilename(filename: string): string {
     return EXT_TO_LANGUAGE[ext] || 'plaintext';
 }
 
-function inferTitleFromFilename(filename: string): string {
-    const trimmed = filename.trim();
-    if (!trimmed) return 'untitled';
-    const dot = trimmed.lastIndexOf('.');
-    const base = dot > 0 ? trimmed.slice(0, dot) : trimmed;
-    return cleanTitle(base || 'untitled');
-}
-
-function resolveCodePayload(req: Request): { code: string; inferredLanguage?: string; inferredTitle?: string; source: 'body' | 'file' } | null {
+function resolveCodePayload(req: Request): { code: string; inferredLanguage?: string; source: 'body' | 'file' } | null {
     const file = req.file as Express.Multer.File | undefined;
 
     if (file) {
@@ -119,7 +96,6 @@ function resolveCodePayload(req: Request): { code: string; inferredLanguage?: st
         return {
             code: text,
             inferredLanguage: inferLanguageFromFilename(file.originalname || ''),
-            inferredTitle: inferTitleFromFilename(file.originalname || ''),
             source: 'file',
         };
     }
@@ -131,62 +107,101 @@ function resolveCodePayload(req: Request): { code: string; inferredLanguage?: st
     return { code: rawCode, source: 'body' };
 }
 
+function asString(value: unknown, fallback = ''): string {
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed.length > 0 ? trimmed : fallback;
+    }
+    if (value == null) return fallback;
+    const casted = String(value).trim();
+    return casted.length > 0 ? casted : fallback;
+}
+
+function toOptionalBoolean(value: unknown): boolean | null {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        if (normalized === 'true' || normalized === '1' || normalized === 'yes') return true;
+        if (normalized === 'false' || normalized === '0' || normalized === 'no') return false;
+    }
+    if (typeof value === 'number') {
+        if (value === 1) return true;
+        if (value === 0) return false;
+    }
+    return null;
+}
+
 export default {
-    name: 'Hub Create Snippet',
-    path: '/hub/snippets',
-    method: 'post',
+    name: 'Hub Update Snippet',
+    path: '/hub/snippets/:id',
+    method: 'put',
     category: 'hub',
     validator: [snippetUploadLimiter, snippetCodeUploadMiddleware.single('codeFile')],
     requires: hubAuthMiddleware,
     execution: async (req: Request, res: Response) => {
         const user = (req as any).hubUser;
-        const payload = resolveCodePayload(req);
+        const { id } = req.params;
+        const { clearPassword } = req.body || {};
 
-        if (!payload) {
-            return res.status(400).json({
-                status: false,
-                msg: 'Debes enviar código válido (texto o archivo) y dentro del límite permitido.',
-            });
+        const snippet = await HubSnippet.findOne({ shortId: id, userId: user._id });
+        if (!snippet) {
+            return res.status(404).json({ status: false, msg: 'Snippet no encontrado' });
         }
 
-        const submittedTitle = cleanTitle(trimText(req.body?.title));
-        const submittedLanguage = trimText(req.body?.language);
-        const language = normalizeLanguage(submittedLanguage, payload.inferredLanguage || 'plaintext');
-        const title = submittedTitle || payload.inferredTitle || 'untitled';
+        const codePayload = resolveCodePayload(req);
+        const nextTitle = cleanTitle(asString(req.body?.title, snippet.title));
+        const nextLanguage = normalizeLanguage(
+            asString(req.body?.language),
+            codePayload?.inferredLanguage || snippet.language,
+        );
+        const nextCode = codePayload?.code || snippet.code;
+        const nextAllowRaw = toOptionalBoolean(req.body?.allowRaw);
+        const nextAllowDownload = toOptionalBoolean(req.body?.allowDownload);
 
-        if (!title || !payload.code) {
+        if (!nextTitle || !nextCode) {
             return res.status(400).json({ status: false, msg: 'title y code requeridos' });
         }
 
-        if (payload.code.length > MAX_CODE_LENGTH) {
+        if (nextCode.length > MAX_CODE_LENGTH) {
             return res.status(400).json({ status: false, msg: 'Código demasiado largo (máx 200KB)' });
         }
 
-        const shortId = crypto.randomBytes(5).toString('hex');
-        const password = trimText(req.body?.password);
-        const allowRaw = toBoolean(req.body?.allowRaw, true);
-        const allowDownload = toBoolean(req.body?.allowDownload, true);
-        const passwordHash = password ? await bcrypt.hash(password, 10) : undefined;
-        const snippet = await HubSnippet.create({
-            userId: user._id,
-            title,
-            language,
-            code: payload.code,
-            allowRaw,
-            allowDownload,
-            shortId,
-            passwordHash,
-        });
+        snippet.title = nextTitle;
+        snippet.language = nextLanguage;
+        snippet.code = nextCode;
+        if (nextAllowRaw !== null) {
+            (snippet as any).allowRaw = nextAllowRaw;
+        }
+        if (nextAllowDownload !== null) {
+            (snippet as any).allowDownload = nextAllowDownload;
+        }
 
-        return res.status(201).json({
+        if (clearPassword === true) {
+            (snippet as any).passwordHash = undefined;
+        }
+
+        const password = trimText(req.body?.password);
+        if (password.length > 0) {
+            (snippet as any).passwordHash = await bcrypt.hash(password, 10);
+        }
+
+        await snippet.save();
+
+        return res.json({
             status: true,
             data: {
-                ...snippet.toObject(),
-                hasPassword: Boolean(passwordHash),
-                allowRaw,
-                allowDownload,
-                source: payload.source,
+                shortId: snippet.shortId,
+                title: snippet.title,
+                language: snippet.language,
+                code: snippet.code,
+                viewCount: snippet.viewCount,
+                createdAt: (snippet as any).createdAt,
+                updatedAt: (snippet as any).updatedAt,
+                hasPassword: Boolean((snippet as any).passwordHash),
+                allowRaw: (snippet as any).allowRaw !== false,
+                allowDownload: (snippet as any).allowDownload !== false,
+                source: codePayload?.source || 'body',
             },
         });
-    }
+    },
 };

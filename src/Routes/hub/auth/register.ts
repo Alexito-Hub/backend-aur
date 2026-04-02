@@ -2,7 +2,11 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { HubUser, HubCaptcha } from '../../../Modules/Hub/Models';
 import { sendVerificationEmail } from '../../../Modules/Hub/Email';
-import { authLimiter } from '../../../Modules/Hub/Middleware';
+import {
+    authFraudLimiter,
+    authLimiter,
+    requireDeviceFingerprint,
+} from '../../../Modules/Hub/Middleware';
 import crypto from 'crypto';
 
 export default {
@@ -10,7 +14,7 @@ export default {
     path: '/hub/auth/register',
     method: 'post',
     category: 'hub',
-    validator: [authLimiter],
+    validator: [authLimiter, authFraudLimiter, requireDeviceFingerprint],
     execution: async (req: Request, res: Response) => {
         const { email, password, displayName, captchaToken } = req.body;
         if (!email || !password || !captchaToken) return res.status(400).json({ status: false, msg: 'Faltan campos' });

@@ -5,7 +5,7 @@ import Token from '../../Core/Middleware/Token';
 
 export default {
     name: 'Reset',
-    path: '/api/admin/reset',
+    path: '/elecciones/admin/reset',
     method: 'post',
     category: 'Elecciones',
     parameter: ['token'],

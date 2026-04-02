@@ -1,13 +1,17 @@
 import { Request, Response } from 'express';
 import { HubCaptcha } from '../../../Modules/Hub/Models';
-import { captchaLimiter } from '../../../Modules/Hub/Middleware';
+import {
+    captchaFraudLimiter,
+    captchaLimiter,
+    requireDeviceFingerprint,
+} from '../../../Modules/Hub/Middleware';
 
 export default {
     name: 'Hub Captcha Verify',
     path: '/hub/captcha/verify',
     method: 'post',
     category: 'hub',
-    validator: [captchaLimiter],
+    validator: [captchaLimiter, captchaFraudLimiter, requireDeviceFingerprint],
     execution: async (req: Request, res: Response) => {
         const { challengeId, answer } = req.body;
         if (!challengeId || answer === undefined) return res.status(400).json({ status: false, msg: 'Faltan parámetros' });

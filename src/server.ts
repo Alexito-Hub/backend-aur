@@ -29,6 +29,9 @@ const server = createServer(app);
 const PORT = process.env.PORT || process.env.WEBSERVER_PORT || 3000;
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const IS_CLOUD_RUN = process.env.K_SERVICE !== undefined;
+const FRONTEND_URL = String(process.env.FRONTEND_URL || '').trim().toLowerCase();
+const IS_LOCAL_FRONTEND = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(FRONTEND_URL);
+const USE_SECURE_COOKIES = IS_PRODUCTION && !IS_LOCAL_FRONTEND;
 
 const origins = [
     process.env.FRONTEND_URL,
@@ -99,7 +102,7 @@ const run = async () => {
             origin: origins,
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             credentials: true,
-            allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-app-token', 'x-device-fingerprint'],
+            allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-app-token', 'x-device-fingerprint', 'x-snippet-password'],
             exposedHeaders: ['X-Total-Count'],
             maxAge: 600
         }))
@@ -139,11 +142,11 @@ const run = async () => {
             }) : undefined,
             proxy: true,
             cookie: {
-                secure: IS_PRODUCTION,
+                secure: USE_SECURE_COOKIES,
                 httpOnly: true,
-                sameSite: IS_PRODUCTION ? 'none' : 'lax',
+                sameSite: USE_SECURE_COOKIES ? 'none' : 'lax',
                 maxAge: 7 * 24 * 60 * 60 * 1000,
-                domain: process.env.COOKIE_DOMAIN || undefined,
+                domain: USE_SECURE_COOKIES ? process.env.COOKIE_DOMAIN || undefined : undefined,
                 path: '/'
             }
         }))

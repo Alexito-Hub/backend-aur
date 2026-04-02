@@ -10,7 +10,37 @@ export default {
     requires: hubAuthMiddleware,
     execution: async (req: Request, res: Response) => {
         const user = (req as any).hubUser;
-        const snippets = await HubSnippet.find({ userId: user._id }).select('-code -passwordHash').sort('-createdAt').limit(100);
-        return res.json({ status: true, data: snippets.map(s => ({ ...s.toObject(), hasPassword: !!s.passwordHash })) });
+        const snippets = await HubSnippet.find({ userId: user._id })
+            .select('-passwordHash')
+            .populate('userId', 'displayName email')
+            .sort('-createdAt')
+            .limit(100);
+
+        return res.json({
+            status: true,
+            data: snippets.map((snippet: any) => {
+                const owner = snippet.userId && typeof snippet.userId === 'object'
+                    ? {
+                        id: snippet.userId._id ? String(snippet.userId._id) : '',
+                        displayName: snippet.userId.displayName || '',
+                        email: snippet.userId.email || '',
+                    }
+                    : null;
+
+                return {
+                    shortId: snippet.shortId,
+                    title: snippet.title,
+                    language: snippet.language,
+                    codePreview: typeof snippet.code === 'string' ? snippet.code.slice(0, 260) : '',
+                    hasPassword: Boolean(snippet.passwordHash),
+                    allowRaw: snippet.allowRaw !== false,
+                    allowDownload: snippet.allowDownload !== false,
+                    viewCount: snippet.viewCount || 0,
+                    createdAt: snippet.createdAt,
+                    updatedAt: snippet.updatedAt,
+                    owner,
+                };
+            }),
+        });
     }
 };

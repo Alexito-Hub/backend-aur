@@ -2,7 +2,11 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { HubUser, HubCaptcha } from '../../../Modules/Hub/Models';
-import { authLimiter } from '../../../Modules/Hub/Middleware';
+import {
+    authFraudLimiter,
+    authLimiter,
+    requireDeviceFingerprint,
+} from '../../../Modules/Hub/Middleware';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'hub_dev_secret_change_me';
 const JWT_EXPIRES = '15m';
@@ -13,7 +17,7 @@ export default {
     path: '/hub/auth/login',
     method: 'post',
     category: 'hub',
-    validator: [authLimiter],
+    validator: [authLimiter, authFraudLimiter, requireDeviceFingerprint],
     execution: async (req: Request, res: Response) => {
         const { email, password, captchaToken } = req.body;
         if (!email || !password || !captchaToken) return res.status(400).json({ status: false, msg: 'Faltan credenciales o captcha' });
@@ -31,7 +35,17 @@ export default {
         const token = jwt.sign({ sub: (user as any)._id.toString(), email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
         const refreshToken = jwt.sign({ sub: (user as any)._id.toString() }, JWT_SECRET, { expiresIn: REFRESH_EXPIRES });
 
-        res.cookie('hub_refresh', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', maxAge: 7 * 24 * 60 * 60 * 1000, path: '/' });
+        const origin = String(req.headers.origin || '').trim().toLowerCase();
+        const isLocalOrigin = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+        const useSecureCookie = process.env.NODE_ENV === 'production' && !isLocalOrigin;
+
+        res.cookie('hub_refresh', refreshToken, {
+            httpOnly: true,
+            secure: useSecureCookie,
+            sameSite: useSecureCookie ? 'none' : 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            path: '/',
+        });
         
         const { passwordHash, emailVerifyToken, emailVerifyExpiry, __v, ...safe } = user.toObject ? user.toObject() : user;
         return res.json({ status: true, token, data: safe });

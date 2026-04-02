@@ -41,6 +41,8 @@ export interface IHubSnippet extends Document {
     title: string;
     language: string;
     code: string;
+    allowRaw?: boolean;
+    allowDownload?: boolean;
     passwordHash?: string;
     shortId: string;
     viewCount: number;
@@ -52,6 +54,8 @@ const HubSnippetSchema = new Schema<IHubSnippet>({
     title: { type: String, required: true, maxlength: 200 },
     language: { type: String, default: 'plaintext' },
     code: { type: String, required: true, maxlength: 200000 },
+    allowRaw: { type: Boolean, default: true },
+    allowDownload: { type: Boolean, default: true },
     passwordHash: String,
     shortId: { type: String, required: true, unique: true },
     viewCount: { type: Number, default: 0 },

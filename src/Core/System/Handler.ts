@@ -30,16 +30,43 @@ export default new class Handler {
                 }
 
                 const method = route.method.toLowerCase();
+                const routeCategory = typeof route.category === 'string' && route.category.trim().length > 0
+                    ? route.category.trim()
+                    : 'core';
+                const normalizedPath = (typeof route.path === 'string' ? route.path : '').split('?')[0];
+                const project = route.project ||
+                    (normalizedPath.startsWith('/hub/') ? 'hub' :
+                    normalizedPath.startsWith('/download/') ? 'mediakeep' :
+                    routeCategory || 'core');
+                const categories = Array.isArray(route.categories)
+                    ? route.categories
+                    : [routeCategory || project].filter(Boolean);
+                const tags = Array.isArray(route.tags) ? route.tags : [];
 
                 if (route.name) Config.routes.push({
-                    category: Func.ucword(route.category),
-                    base_code: Buffer.from(route.category.toLowerCase()).toString('base64'),
+                    category: Func.ucword(routeCategory),
+                    base_code: Buffer.from(routeCategory.toLowerCase()).toString('base64'),
                     name: route.name,
                     path: route.example ? `${route.path}?${new URLSearchParams(Object.entries(route.example)).toString()}` : route.path,
                     method: method.toUpperCase(),
+                    description: route.description || '',
+                    parameter: Array.isArray(route.parameter) ? route.parameter : [],
+                    tags,
+                    project,
+                    categories,
+                    meta: route.meta || null,
+                    config: route.config || null,
+                    examples: route.examples || null,
+                    request: route.request || null,
+                    response: route.response || null,
+                    related: Array.isArray(route.related) ? route.related : [],
+                    sandbox: route.sandbox || null,
+                    sourceFile: route.__filePath || null,
+                    requiresAuth: Boolean(route.requires),
                     raw: {
-                        path: route.path,
-                        example: route.example || null
+                        path: normalizedPath,
+                        example: route.example || null,
+                        handler: typeof route.execution === 'function' ? 'execution' : null,
                     },
                     error: route.error,
                     premium: route.premium,

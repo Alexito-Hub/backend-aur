@@ -4,7 +4,7 @@ import Token from '../../Core/Middleware/Token';
 
 export default {
     name: 'Detalle',
-    path: '/api/candidato/:id',
+    path: '/elecciones/candidato/:id',
     method: 'get',
     category: 'Elecciones',
     enable: false,

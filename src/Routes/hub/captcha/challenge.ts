@@ -1,7 +1,11 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import { HubCaptcha } from '../../../Modules/Hub/Models';
-import { captchaLimiter } from '../../../Modules/Hub/Middleware';
+import {
+    captchaFraudLimiter,
+    captchaLimiter,
+    requireDeviceFingerprint,
+} from '../../../Modules/Hub/Middleware';
 import { CaptchaGen } from '../../../Utils/CaptchaGen';
 
 export default {
@@ -9,7 +13,7 @@ export default {
     path: '/hub/captcha/challenge',
     method: 'post',
     category: 'hub',
-    validator: [captchaLimiter],
+    validator: [captchaLimiter, captchaFraudLimiter, requireDeviceFingerprint],
     execution: async (req: Request, res: Response) => {
         const { svg, text } = CaptchaGen.generate();
         const challengeId = crypto.randomBytes(16).toString('hex');

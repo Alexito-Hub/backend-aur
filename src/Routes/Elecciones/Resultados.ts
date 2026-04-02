@@ -6,7 +6,7 @@ import Service from '../../Modules/Elecciones/Service';
 
 export default {
     name: 'Resultados',
-    path: '/api/resultados',
+    path: '/elecciones/resultados',
     method: 'get',
     category: 'Elecciones',
     enable: false,

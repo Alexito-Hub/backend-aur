@@ -4,7 +4,7 @@ import Token from '../../Core/Middleware/Token';
 
 export default {
     name: 'Token',
-    path: '/api/token',
+    path: '/elecciones/token',
     method: 'get',
     category: 'Elecciones',
     enable: false,

@@ -9,7 +9,7 @@ const hash = (d: string) => crypto.createHash('sha256').update(d).digest('hex');
 
 export default {
     name: 'Votar',
-    path: '/api/votar',
+    path: '/elecciones/votar',
     method: 'post',
     category: 'Elecciones',
     parameter: ['token', 'candidato_id', 'fingerprint_cliente', 'nombre'],
