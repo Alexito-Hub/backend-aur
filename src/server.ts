@@ -17,7 +17,6 @@ import { WebSocketServer } from 'ws';
 
 import Create from './Core/System/Handler';
 import Cache from './Core/System/Cache';
-import Storage from './Core/Storage/Storage';
 import MongoDB from './Core/Database/MongoDB';
 import SQLite from './Core/Database/SQLite';
 
@@ -62,9 +61,8 @@ server.on('upgrade', (request, socket, head) => {
 });
 
 const run = async () => {
-    const [, , sqlite] = await Promise.all([
+    const [, sqlite] = await Promise.all([
         MongoDB.init(),
-        Storage.init(),
         SQLite.init({
             path: './Storage/database.db',
             needProfiling: true
@@ -193,7 +191,7 @@ const run = async () => {
                 align: 'center',
                 colors: ['system']
             });
-            CFonts.say(`MongoDB, SQLite & Storage connected\nServer listening on port ---> ${PORT}`, {
+            CFonts.say(`MongoDB & SQLite connected\nServer listening on port ---> ${PORT}`, {
                 font: 'console',
                 align: 'center',
                 colors: ['system']
